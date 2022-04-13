@@ -153,7 +153,7 @@ void parseData(){      // split the data into its parts
 
 void sendData()
 {
-    esp_err_t result_1 = esp_now_send(broadcastAddress1, (uint8_t *) &robot_2, sizeof(robot_2));
+    esp_err_t result_1 = esp_now_send(broadcastAddress1, (uint8_t *) &robot_1, sizeof(robot_1));
     //esp_err_t result_2 = esp_now_send(broadcastAddress2, (uint8_t *) &robot_2, sizeof(robot_2));
     //esp_err_t result_3 = esp_now_send(broadcastAddress3, (uint8_t *) &robot_3, sizeof(robot_3));
 
