@@ -1,141 +1,175 @@
 #include <esp_now.h>
 #include <WiFi.h>
 
-// This is the code for the board that is connected to PC 
+// This is the code for the board that is connected to PC
 
-// STRUCTURE TO SEND DATA
-//-----------------------------------------------------------------------------------------------------------
-// REPLACE WITH THE RECEIVER'S MAC Address
+// MAC Adress de cada uma das placas que receberao comandos
 uint8_t broadcastAddress1[] = {0xA4, 0xCF, 0x12, 0x72, 0xB7, 0x20};
 //uint8_t broadcastAddress2[] = {0xFF, , , , , };
 //uint8_t broadcastAddress3[] = {0xFF, , , , , };
 
-// Structure to send data must match the receiver structure
-typedef struct send_message {
-    int id; // must be unique for each sender board
-    int v_r;
-    int v_l;
-} send_message;
+//==============
 
-// Create a struct_message called myData
-send_message myDataSend1;
-send_message myDataSend2;
-send_message myDataSend3;
+const byte numChars = 64;
+char receivedChars[numChars];
+char tempChars[numChars];   
+boolean newData = false;     
 
-// Create peer interface
+//==============
+
+typedef struct{
+    int id;
+    float v_r;
+    float v_l;
+} commands;
+
+commands robot_1;
+commands robot_2;
+commands robot_3;
+
+//==============
+
 esp_now_peer_info_t peerInfo;
-//----------------------------------------------------------------------------------------------------
 
-// STRUCTURE TO RECIEVE DATA
-//-----------------------------------------------------------------------------------------------------------
-// Must match the sender structure
-typedef struct recieved_message {
-  int id;
-  int battery;
-}recieved_message;
+//==============
 
-// Create a struct_message called myData
-recieved_message myDataRecieved;
-
-// Create a structure to hold the readings from each board
-recieved_message board1;
-recieved_message board2;
-recieved_message board3;
-
-// Create an array with all the structures
-recieved_message boardsStruct[3] = {board1, board2, board3};
-
-// callback function that will be executed when data is received
-void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) {
-  memcpy(&myDataRecieved, incomingData, sizeof(myDataRecieved));
-  // Update the structures with the new incoming data
-  boardsStruct[myDataRecieved.id-1].battery = myDataRecieved.battery;
-}
-//-----------------------------------------------------------------------------------------------------------
-
-
-void setup() {
-  //Initialize Serial Monitor
+void setup() 
+{
   Serial.begin(115200);
   
-  //Set device as a Wi-Fi Station
   WiFi.mode(WIFI_STA);
 
-  //Init ESP-NOW
-  if (esp_now_init() != ESP_OK) {
+  if (esp_now_init() != ESP_OK) 
+  {
     Serial.println("Error initializing ESP-NOW");
     return;
   }
 
-// SETUP TO RECIEVE
-//--------------------------------------------------------------------------------
-  // Once ESPNow is successfully Init, we will register for recv CB to get recv packer info
-  esp_now_register_recv_cb(OnDataRecv);
-//--------------------------------------------------------------------------------
-
-  // register first peer  
+  //register first peer
   memcpy(peerInfo.peer_addr, broadcastAddress1, 6);
-  if (esp_now_add_peer(&peerInfo) != ESP_OK){
+  if (esp_now_add_peer(&peerInfo) != ESP_OK) 
+  {
     Serial.println("Failed to add peer");
     return;
   }
   /*
-  // register second peer  
+  // register second peer
   memcpy(peerInfo.peer_addr, broadcastAddress2, 6);
-  if (esp_now_add_peer(&peerInfo) != ESP_OK){
+  if (esp_now_add_peer(&peerInfo) != ESP_OK)
+  {
     Serial.println("Failed to add peer");
     return;
   }
-  /// register third peer
-  memcpy(peerInfo.peer_addr, broadcastAddress3, 6);
-  if (esp_now_add_peer(&peerInfo) != ESP_OK){
-    Serial.println("Failed to add peer");
-    return;
-  }*/
-}
-
-void loop() { 
-// SEND LOOP
-//---------------------------------------------------------------------------------
-// Set values to send
-
-  // Value coming form python script
-  myDataSend1.id = 1;
-  myDataSend1.v_r = Serial.parseInt();
-  myDataSend1.v_l = Serial.parseInt();
-  /*
-  myDataSend2.id = 2;
-  myDataSend2.v_r = Serial.read();
-  myDataSend2.v_l = Serial.read();
-
-  myDataSend3.id = 3;
-  myDataSend3.v_r = Serial.read();
-  myDataSend3.v_l = Serial.read();*/
-
-  // Send message via ESP-NOW
-  esp_err_t result1 = esp_now_send(broadcastAddress1, (uint8_t *) &myDataSend1, sizeof(myDataSend1));
-  //esp_err_t result2 = esp_now_send(broadcastAddress2, (uint8_t *) &myDataSend2, sizeof(myDataSend2));
-  //esp_err_t result3 = esp_now_send(broadcastAddress3, (uint8_t *) &myDataSend3, sizeof(myDataSend3));
   
-  if (result1 != ESP_OK) {
-    Serial.println("Error sending the data");
-  }
-
-  /*if (result2 != ESP_OK) {
-    Serial.println("Error sending the data 2");
-  }
-
-  if (result3 != ESP_OK) {
-    Serial.println("Error sending the data 3");
+  // register third peer
+  memcpy(peerInfo.peer_addr, broadcastAddress3, 6);
+  if (esp_now_add_peer(&peerInfo) != ESP_OK)
+  {
+    Serial.println("Failed to add peer");
+    return;
   }
   */
-//------------------------------------------------------------------------------------
-  // Acess the variables for each board
-  //int board1X = boardsStruct[0].battery;
-  int board2X = boardsStruct[1].battery;
-  //int board3X = boardsStruct[2].battery;
-  Serial.print("Bateria: ");
-  Serial.print(board2X);
-  
-  //delay(500);  
+}
+
+//=============
+
+void loop() {
+  recvWithStartEndMarkers();
+  if (newData == true){
+      strcpy(tempChars, receivedChars);
+          // this temporary copy is necessary to protect the original data
+          //   because strtok() used in parseData() replaces the commas with \0
+      parseData();
+      sendData();
+      newData = false;
+  }
+}
+
+//==============
+
+void recvWithStartEndMarkers(){
+    static boolean recvInProgress = false;
+    static byte ndx = 0;
+    char startMarker = '<';
+    char endMarker = '>';
+    char in;
+
+    while (Serial.available()){
+        //  Message format:
+        //  <[id1],[v_r],[v_l],[id2],[v_r],[v_l],[id3],[v_r],[v_l]>
+        in = Serial.read();
+
+        if (recvInProgress == true){
+            if (in != endMarker){
+                receivedChars[ndx] = in;
+                ndx++;
+                if (ndx >= numChars){
+                    ndx = numChars - 1;
+                }
+            }
+            else{
+                receivedChars[ndx] = '\0'; // terminate the string
+                recvInProgress = false;
+                ndx = 0;
+                newData = true;
+            }
+        }
+
+        else if (in == startMarker){
+            recvInProgress = true;
+        }
+    }
+}
+
+//===============
+
+void parseData(){      // split the data into its parts
+
+    char * strtokIndx; // this is used by strtok() as an index
+
+    strtokIndx = strtok(tempChars,",");      // get the first part
+    robot_1.id = atoi(strtokIndx);           // convert this part to an integer
+    strtokIndx = strtok(NULL, ",");          // this continues where the previous call left off
+    robot_1.v_r = atof(strtokIndx);          // convert this part to an float
+    strtokIndx = strtok(NULL, ",");          // this continues where the previous call left off
+    robot_1.v_l = atof(strtokIndx);          // convert this part to an float
+
+    strtokIndx = strtok(NULL,",");      
+    robot_2.id = atoi(strtokIndx); 
+    strtokIndx = strtok(NULL, ","); 
+    robot_2.v_r = atof(strtokIndx);     
+    strtokIndx = strtok(NULL, ",");
+    robot_2.v_l = atof(strtokIndx);     
+    
+    strtokIndx = strtok(NULL,",");     
+    robot_3.id = atoi(strtokIndx); 
+    strtokIndx = strtok(NULL, ","); 
+    robot_3.v_r = atof(strtokIndx);   
+    strtokIndx = strtok(NULL, ",");
+    robot_3.v_l = atof(strtokIndx);     
+}
+
+//===============
+
+void sendData()
+{
+    esp_err_t result_1 = esp_now_send(broadcastAddress1, (uint8_t *) &robot_2, sizeof(robot_2));
+    //esp_err_t result_2 = esp_now_send(broadcastAddress2, (uint8_t *) &robot_2, sizeof(robot_2));
+    //esp_err_t result_3 = esp_now_send(broadcastAddress3, (uint8_t *) &robot_3, sizeof(robot_3));
+
+    if (result_1 != ESP_OK) 
+    {
+      Serial.println("Error sending the data for robot 1");
+    }
+    /*
+    if (result_2 != ESP_OK) 
+    {
+      Serial.println("Error sending the data for robot 2");
+    }
+    
+    if (result_3 != ESP_OK) 
+    {
+      Serial.println("Error sending the data for robot 3");
+    }
+    */
 }
