@@ -59,9 +59,19 @@ void motor_L(int speedL){
   ledcWrite(2,abs( speedL));
 }
 
-
 void motors_control(float linear, float angular) {
   angular = pid(angular, - get_theta_speed());
+
+  if(linear > 0 ) linear = map(linear, 0, 255, 60, 255);
+  if(linear < 0 ) linear = map(linear, 0, -255, -60, -255);
+
+  Serial.print("Id: ");
+  Serial.println(robot.id);
+  Serial.print("V_L: ");
+  Serial.println(linear);
+  Serial.print("V_A: ");
+  Serial.println(angular);
+  Serial.println();
   
   float Vel_R = linear - angular; //ao somar o angular com linear em cada motor conseguimos a ideia de direcao do robo
   float Vel_L = linear + angular;
@@ -130,11 +140,4 @@ void loop() {
 
   motors_control(v_r,v_l); //aplica os valores para os motores
   
-  Serial.print("Id: ");
-  Serial.println(robot.id);
-  Serial.print("V_R: ");
-  Serial.println(v_r);
-  Serial.print("V_L: ");
-  Serial.println(v_l);
-  Serial.println();
 }

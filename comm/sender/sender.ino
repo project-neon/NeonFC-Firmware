@@ -5,8 +5,8 @@
 
 // MAC Adress de cada uma das placas que receberao comandos
 //uint8_t broadcastAddress1[] = {0xA4, 0xCF, 0x12, 0x72, 0xB7, 0x20};
-//uint8_t broadcastAddress2[] = {0x24,0x6F ,0x28 ,0xAD ,0xD4 ,0x80 };
-uint8_t broadcastAddress3[] = {0x24,0x6F ,0x28 ,0xAD ,0xD4 ,0x80 };
+uint8_t broadcastAddress2[] = {0x0C,0xDC ,0x7E ,0x5E ,0xA3 ,0xE8 };
+//uint8_t broadcastAddress3[] = {0x24,0x6F ,0x28 ,0xAD ,0xD4 ,0x80 };
 
 //==============
 
@@ -52,7 +52,7 @@ void setup()
     Serial.println("Failed to add peer");
     return;
   }
-  
+  */
   // register second peer
   memcpy(peerInfo.peer_addr, broadcastAddress2, 6);
   if (esp_now_add_peer(&peerInfo) != ESP_OK)
@@ -60,7 +60,7 @@ void setup()
     Serial.println("Failed to add peer");
     return;
   }
-  */
+  /*
   // register third peer
   memcpy(peerInfo.peer_addr, broadcastAddress3, 6);
   if (esp_now_add_peer(&peerInfo) != ESP_OK)
@@ -68,7 +68,7 @@ void setup()
     Serial.println("Failed to add peer");
     return;
   }
-  
+  */
 }
 
 //=============
@@ -157,22 +157,22 @@ void sendData()
   
 
     //esp_err_t result_1 = esp_now_send(broadcastAddress1, (uint8_t *) &robot_1, sizeof(robot_1));
-    //esp_err_t result_2 = esp_now_send(broadcastAddress2, (uint8_t *) &robot_2, sizeof(robot_2));
-    esp_err_t result_3 = esp_now_send(broadcastAddress3, (uint8_t *) &robot_3, sizeof(robot_3));
+    esp_err_t result_2 = esp_now_send(broadcastAddress2, (uint8_t *) &robot_2, sizeof(robot_2));
+    //esp_err_t result_3 = esp_now_send(broadcastAddress3, (uint8_t *) &robot_3, sizeof(robot_3));
     /*
     if (result_1 != ESP_OK) 
     {
       Serial.println("Error sending the data for robot 1");
     }
-    
+    */
     if (result_2 != ESP_OK) 
     {
       Serial.println("Error sending the data for robot 2");
     }
-    */
+    /*
     if (result_3 != ESP_OK) 
     {
       Serial.println("Error sending the data for robot 3");
     }
-    
+    */
 }

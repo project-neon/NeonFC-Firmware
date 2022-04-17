@@ -26,7 +26,7 @@ void mpu_init(void) {
 }
 
 
-float get_theta(){
+float get_theta_speed(){
 
 	sensors_event_t a, g, temp;
 	mpu.getEvent(&a, &g, &temp);
