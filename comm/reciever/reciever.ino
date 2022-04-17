@@ -55,11 +55,18 @@ void motor_L(int speedL){
 
 void motors_control(float Vel_R, float Vel_L) {
 // os if limitam os valores para no minimo 15 e no máximo 255, mantendo o seu sinal
-  if(Vel_R<15 && Vel_R>-15) Vel_R=0; 
+  if(Vel_R >0) Vel_R = map(Vel_R, 0, 255, 60 ,255);
+  if(Vel_R <0) Vel_R = map(Vel_R, 0, -255, -60 ,-255);
+
+  if(Vel_R<60 && Vel_R >-60) Vel_R=0; 
+
   if(Vel_R>255 ) Vel_R=255;
   if(Vel_R<-255) Vel_R=-255;  
 
-  if(Vel_L<15 && Vel_L>-15) Vel_L=0;
+  if(Vel_L >0) Vel_L = map(Vel_L, 0, 255, 60 ,255);
+  if(Vel_L <0) Vel_L = map(Vel_L, 0, -255, -60 ,-255);
+
+  if(Vel_L<60 && Vel_L>-60) Vel_L=0;
   if(Vel_L>255 ) Vel_L=255;
   if(Vel_L<-255) Vel_L=-255;
   
@@ -108,7 +115,7 @@ void loop() {
   float v_r = robot.v_r;
   float v_l = robot.v_l;
 
-  motors_control(v_r,v_l); //aplica os valores para os motores
+  motors_control(v_r,v_l*1.2); //aplica os valores para os motores
   
   Serial.print("Id: ");
   Serial.println(robot.id);
