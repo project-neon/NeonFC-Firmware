@@ -1,4 +1,3 @@
-from termios import NL1
 import serial
 from random import randint
 
@@ -19,8 +18,8 @@ while i < 200000:
     v_l2 = str(43)
 
     id3 = str(9)
-    v_r3 = str(80)
-    v_l3 = str(27)
+    v_r3 = str(255)
+    v_l3 = str(378)
 
     vel = (f"<{id1},{v_r1},{v_l1},{id2},{v_r2},{v_l2},{id3},{v_r3},{v_l3}>")
     esp32.write(vel.encode())
