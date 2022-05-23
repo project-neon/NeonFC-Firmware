@@ -133,7 +133,7 @@ void loop() {
   v_r = robot.v_r;
   v_l = robot.v_l;
   
-  if(second_mark - first_mark > 3000){
+  if(second_mark - first_mark > 500){
     v_r = 0.00;
     v_l = 0.00;
   }
