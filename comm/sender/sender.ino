@@ -151,7 +151,7 @@ void parseData(){      // split the data into its parts
 
     else
     {
-      robot_9.id = 3;         
+      robot_9.id = 9;         
       strtokIndx = strtok(NULL, ",");     
       robot_9.v_r = atof(strtokIndx);       
       strtokIndx = strtok(NULL, ",");         
