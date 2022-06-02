@@ -4,9 +4,10 @@
 // This is the code for the board that is connected to PC
 
 // MAC Adress de cada uma das placas que receberao comandos
-uint8_t broadcastAddress0[] = {0xA4, 0xCF, 0x12, 0x72, 0xB7, 0x20};
-uint8_t broadcastAddress3[] = {0x0C,0xDC ,0x7E ,0x5E ,0xA3 ,0xE8 };
-uint8_t broadcastAddress9[] = {0x24,0x6F ,0x28 ,0xAD ,0xD4 ,0x80 };
+// uint8_t broadcastAddress0[] = {0xA4, 0xCF, 0x12, 0x72, 0xB7, 0x20};
+uint8_t broadcastAddress0[] = {0x0C, 0xDC, 0x7E, 0x5E, 0x97, 0x0C};
+uint8_t broadcastAddress3[] = {0x0C, 0xDC, 0x7E, 0x5E, 0xA3, 0xE8 };
+uint8_t broadcastAddress9[] = {0x24, 0x6F, 0x28, 0xAD, 0xD4, 0x80 };
 
 //==============
 
@@ -14,7 +15,7 @@ const byte numChars = 64;
 char receivedChars[numChars];
 char tempChars[numChars];   
 boolean newData = false;     
-int id1, id2, id3;
+int id, count;
 
 //==============
 
@@ -53,7 +54,7 @@ void setup()
     Serial.println("Failed to add peer");
     return;
   }
- 
+  
   // register second peer
   memcpy(peerInfo.peer_addr, broadcastAddress3, 6);
   if (esp_now_add_peer(&peerInfo) != ESP_OK)
@@ -69,6 +70,7 @@ void setup()
     Serial.println("Failed to add peer");
     return;
   }
+  
  
 }
 
@@ -129,94 +131,38 @@ void parseData(){      // split the data into its parts
     char * strtokIndx; // this is used by strtok() as an index
 
     // Solução provisória. Pensar em uma melhor!!!
-    strtokIndx = strtok(tempChars,",");    
-    id1 = atoi(strtokIndx);
-    if(id1 == 0)
-    {
-      robot_0.id = 0;         
-      strtokIndx = strtok(NULL, ",");     
-      robot_0.v_r = atof(strtokIndx);       
-      strtokIndx = strtok(NULL, ",");         
-      robot_0.v_l = atof(strtokIndx);
-    }
+    strtokIndx = strtok(tempChars, ",");
     
-    else if(id1 == 3)
-    {
-      robot_3.id = 3;         
-      strtokIndx = strtok(NULL, ",");     
-      robot_3.v_r = atof(strtokIndx);       
-      strtokIndx = strtok(NULL, ",");         
-      robot_3.v_l = atof(strtokIndx);
-    }
-
-    else
-    {
-      robot_9.id = 9;         
-      strtokIndx = strtok(NULL, ",");     
-      robot_9.v_r = atof(strtokIndx);       
-      strtokIndx = strtok(NULL, ",");         
-      robot_9.v_l = atof(strtokIndx);
-    }
-            
-
-    strtokIndx = strtok(NULL,","); 
-    id2 = atoi(strtokIndx);
-    if(id2 == 0)
-    {
-      robot_0.id = 0;         
-      strtokIndx = strtok(NULL, ",");     
-      robot_0.v_r = atof(strtokIndx);       
-      strtokIndx = strtok(NULL, ",");         
-      robot_0.v_l = atof(strtokIndx);
-    }
-    
-    else if(id2 == 3)
-    {
-      robot_3.id = 3;         
-      strtokIndx = strtok(NULL, ",");     
-      robot_3.v_r = atof(strtokIndx);       
-      strtokIndx = strtok(NULL, ",");         
-      robot_3.v_l = atof(strtokIndx);
-    }
-
-    else
-    {
-      robot_9.id = 9;         
-      strtokIndx = strtok(NULL, ",");     
-      robot_9.v_r = atof(strtokIndx);       
-      strtokIndx = strtok(NULL, ",");         
-      robot_9.v_l = atof(strtokIndx);
-    }
-
- 
-    strtokIndx = strtok(NULL,",");   
-    id3 = atoi(strtokIndx); 
-    if(id3 == 0)
-    {
-      robot_0.id = 0;         
-      strtokIndx = strtok(NULL, ",");     
-      robot_0.v_r = atof(strtokIndx);       
-      strtokIndx = strtok(NULL, ",");         
-      robot_0.v_l = atof(strtokIndx);
-    }
-    
-    else if(id3 == 3)
-    {
-      robot_3.id = 3;         
-      strtokIndx = strtok(NULL, ",");     
-      robot_3.v_r = atof(strtokIndx);       
-      strtokIndx = strtok(NULL, ",");         
-      robot_3.v_l = atof(strtokIndx);
-    }
-
-    else
-    {
-      robot_9.id = 9;         
-      strtokIndx = strtok(NULL, ",");     
-      robot_9.v_r = atof(strtokIndx);       
-      strtokIndx = strtok(NULL, ",");         
-      robot_9.v_l = atof(strtokIndx);     
-    }
+    for(count = 0; count < 3; count++){
+        id = atoi(strtokIndx);
+        
+        if(id == 0){
+          robot_0.id = 0;         
+          strtokIndx = strtok(NULL, ",");     
+          robot_0.v_r = atof(strtokIndx);       
+          strtokIndx = strtok(NULL, ",");         
+          robot_0.v_l = atof(strtokIndx);
+          strtokIndx = strtok(NULL, ","); 
+          }
+  
+        else if(id == 3){
+          robot_3.id = 3;         
+          strtokIndx = strtok(NULL, ",");     
+          robot_3.v_r = atof(strtokIndx);       
+          strtokIndx = strtok(NULL, ",");         
+          robot_3.v_l = atof(strtokIndx);
+          strtokIndx = strtok(NULL, ","); 
+          }
+  
+        else{
+          robot_9.id = 9;         
+          strtokIndx = strtok(NULL, ",");     
+          robot_9.v_r = atof(strtokIndx);       
+          strtokIndx = strtok(NULL, ",");         
+          robot_9.v_l = atof(strtokIndx);
+          strtokIndx = strtok(NULL, ","); 
+          }
+      } 
 }
 
 //===============

@@ -11,11 +11,9 @@
 #define stby 33
 
 // This is de code for the board that is in robots
-float v_r;
-float v_l;
+float v_r, v_l;
+int first_mark, second_mark;
 
-int first_mark;
-int second_mark;
 
 typedef struct recieved_message {
   int id;
