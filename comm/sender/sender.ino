@@ -130,7 +130,6 @@ void parseData(){      // split the data into its parts
 
     char * strtokIndx; // this is used by strtok() as an index
 
-    // Solução provisória. Pensar em uma melhor!!!
     strtokIndx = strtok(tempChars, ",");
     
     for(count = 0; count < 3; count++){
