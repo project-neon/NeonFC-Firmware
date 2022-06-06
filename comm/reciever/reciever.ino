@@ -11,14 +11,14 @@
 #define stby 33
 
 // This is de code for the board that is in robots
-float v_r, v_l;
+float v_l, v_a;
 int first_mark, second_mark;
 
 
 typedef struct recieved_message {
   int id;
-  float v_r;
   float v_l;
+  float v_a;
 }recieved_message;
 
 recieved_message commands;
@@ -31,8 +31,8 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   first_mark = millis();
   
   robot.id = commands.id;
-  robot.v_r = commands.v_r;
   robot.v_l = commands.v_l;
+  robot.v_a = commands.v_a;
   Serial.println();
 }
 
@@ -128,14 +128,14 @@ void setup() {
 void loop() {
   second_mark = millis();  
   
-  v_r = robot.v_r;
   v_l = robot.v_l;
+  v_a = robot.v_a;
   
   if(second_mark - first_mark > 500){
-    v_r = 0.00;
     v_l = 0.00;
+    v_a = 0.00;
   }
 
-  motors_control(v_r,v_l); //aplica os valores para os motores
+  motors_control(v_l,v_a); //aplica os valores para os motores
   
 }

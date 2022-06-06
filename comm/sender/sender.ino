@@ -21,8 +21,8 @@ int id, count;
 
 typedef struct{
     int id;
-    float v_r;
     float v_l;
+    float v_a;
 } commands;
 
 commands robot_0;
@@ -99,7 +99,7 @@ void recvWithStartEndMarkers(){
 
     while (Serial.available()){
         //  Message format:
-        //  <[id1],[v_r1],[v_l1],[id2],[v_r2],[v_l2],[id3],[v_r3],[v_l3]>
+        //  <[id1],[v_l1],[v_a1],[id2],[v_l2],[v_a2],[id3],[v_l3],[v_a3]>
         in = Serial.read();
 
         if (recvInProgress == true){
@@ -139,27 +139,27 @@ void parseData(){      // split the data into its parts
         if(id == 0){
           robot_0.id = 0;         
           strtokIndx = strtok(NULL, ",");     
-          robot_0.v_r = atof(strtokIndx);       
+          robot_0.v_l = atof(strtokIndx);       
           strtokIndx = strtok(NULL, ",");         
-          robot_0.v_l = atof(strtokIndx);
+          robot_0.v_a = atof(strtokIndx);
           strtokIndx = strtok(NULL, ","); 
           }
   
         else if(id == 3){
           robot_3.id = 3;         
           strtokIndx = strtok(NULL, ",");     
-          robot_3.v_r = atof(strtokIndx);       
+          robot_3.v_l = atof(strtokIndx);       
           strtokIndx = strtok(NULL, ",");         
-          robot_3.v_l = atof(strtokIndx);
+          robot_3.v_a = atof(strtokIndx);
           strtokIndx = strtok(NULL, ","); 
           }
   
         else{
           robot_9.id = 9;         
           strtokIndx = strtok(NULL, ",");     
-          robot_9.v_r = atof(strtokIndx);       
+          robot_9.v_l = atof(strtokIndx);       
           strtokIndx = strtok(NULL, ",");         
-          robot_9.v_l = atof(strtokIndx);
+          robot_9.v_a = atof(strtokIndx);
           strtokIndx = strtok(NULL, ","); 
           }
       } 
