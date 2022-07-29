@@ -6,8 +6,8 @@
 // MAC Adress de cada uma das placas que receberao comandos
 // uint8_t broadcastAddress0[] = {0xA4, 0xCF, 0x12, 0x72, 0xB7, 0x20};
 uint8_t broadcastAddress0[] = {0x0C, 0xDC, 0x7E, 0x5E, 0x97, 0x0C};
-uint8_t broadcastAddress3[] = {0x0C, 0xDC, 0x7E, 0x5E, 0xA3, 0xE8 };
-uint8_t broadcastAddress9[] = {0x24, 0x6F, 0x28, 0xAD, 0xD4, 0x80 };
+uint8_t broadcastAddress3[] = {0x0C, 0xDC, 0x7E, 0x5E, 0xA3, 0xE8};
+uint8_t broadcastAddress9[] = {0x24, 0x6F, 0x28, 0xAD, 0xD4, 0x80};
 
 //==============
 
@@ -70,8 +70,6 @@ void setup()
     Serial.println("Failed to add peer");
     return;
   }
-  
- 
 }
 
 //=============
@@ -132,7 +130,7 @@ void parseData(){      // split the data into its parts
 
     strtokIndx = strtok(tempChars, ",");
     
-    for(count = 0; count < 3; count++){
+    while (strtokIndx != NULL){
         id = atoi(strtokIndx);
         
         if(id == 0){
@@ -161,30 +159,19 @@ void parseData(){      // split the data into its parts
           robot_9.v_a = atof(strtokIndx);
           strtokIndx = strtok(NULL, ","); 
           }
-      } 
+    }
 }
 
 //===============
 
 void sendData()
-{
+{   
+    // esse delay é necessário para que os dados sejam enviados corretamente
     esp_err_t result_0 = esp_now_send(broadcastAddress0, (uint8_t *) &robot_0, sizeof(robot_0));
-    esp_err_t result_3 = esp_now_send(broadcastAddress3, (uint8_t *) &robot_3, sizeof(robot_3));
-    esp_err_t result_9 = esp_now_send(broadcastAddress9, (uint8_t *) &robot_9, sizeof(robot_9));
-   
-    if (result_0 != ESP_OK) 
-    {
-      Serial.println("Error sending the data for robot 0");
-    }
-    
-    if (result_3 != ESP_OK) 
-    {
-      Serial.println("Error sending the data for robot 3");
-    }
-    
-    if (result_9 != ESP_OK) 
-    {
-      Serial.println("Error sending the data for robot 9");
-    }
-    
+    delay(5);
+    esp_err_t result_3 = esp_now_send(broadcastAddress9, (uint8_t *) &robot_9, sizeof(robot_9));
+    delay(5);
+    esp_err_t result_9 = esp_now_send(broadcastAddress3, (uint8_t *) &robot_3, sizeof(robot_3));
+    delay(5);
+
 }
