@@ -1,6 +1,8 @@
 #include <esp_now.h>
 #include <WiFi.h>
 
+#define CHANNEL 3
+
 // This is the code for the board that is connected to PC
 
 // MAC Adress de cada uma das placas que receberao comandos
@@ -33,8 +35,6 @@ commands robot_9;
 
 esp_now_peer_info_t peerInfo;
 
-//==============
-
 void setup() 
 {
   Serial.begin(115200);
@@ -46,6 +46,9 @@ void setup()
     Serial.println("Error initializing ESP-NOW");
     return;
   }
+
+  peerInfo.channel = CHANNEL;
+
 
   //register first peer
   memcpy(peerInfo.peer_addr, broadcastAddress0, 6);
@@ -160,6 +163,7 @@ void parseData(){      // split the data into its parts
           strtokIndx = strtok(NULL, ","); 
           }
     }
+    
 }
 
 //===============
@@ -168,10 +172,10 @@ void sendData()
 {   
     // esse delay é necessário para que os dados sejam enviados corretamente
     esp_err_t result_0 = esp_now_send(broadcastAddress0, (uint8_t *) &robot_0, sizeof(robot_0));
-    delay(2);
+    delay(3);
     esp_err_t result_3 = esp_now_send(broadcastAddress3, (uint8_t *) &robot_3, sizeof(robot_3));
-    delay(2);
+    delay(3);
     esp_err_t result_9 = esp_now_send(broadcastAddress9, (uint8_t *) &robot_9, sizeof(robot_9));
-    delay(2);
+    delay(3);
 
 }

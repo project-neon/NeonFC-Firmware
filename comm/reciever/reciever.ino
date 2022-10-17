@@ -1,6 +1,8 @@
 #include <esp_now.h>
 #include <WiFi.h>
 
+#define CHANNEL 3
+
 //pin definitions
 #define PWMA 19
 #define PWMB 27
@@ -63,13 +65,6 @@ void motors_control(float linear, float angular) {
   if (linear > 0 ) linear = map(linear, 0, 255, 60, 255);
   if (linear < 0 ) linear = map(linear, 0, -255, -60, -255);
 
-  Serial.print("Id: ");
-  Serial.println(robot.id);
-  Serial.print("V_L: ");
-  Serial.println(linear);
-  Serial.print("V_A: ");
-  Serial.println(angular);
-  Serial.println();
 
   float Vel_R = linear - angular; //ao somar o angular com linear em cada motor conseguimos a ideia de direcao do robo
   float Vel_L = linear + angular;
@@ -86,6 +81,7 @@ void motors_control(float linear, float angular) {
   motor_L(Vel_L);
 
 }
+
 
 void setup() {
   Serial.begin(115200);
@@ -113,10 +109,9 @@ void setup() {
 
   WiFi.mode(WIFI_STA);
 
-  if (esp_now_init() != ESP_OK) {
-    Serial.println("Error initializing ESP-NOW");
-    return;
-  }
+  esp_now_init();
+
+  // esp_wifi_set_channel(CHANNEL, WIFI_SECOND_CHAN_NONE);
 
   esp_now_register_recv_cb(OnDataRecv);
   
@@ -131,10 +126,12 @@ void loop() {
   v_l = robot.v_l;
   v_a = robot.v_a;
 
+
   if (second_mark - first_mark > 500) {
     v_l = 0.00;
     v_a = 0.00;
   }
+
 
   motors_control(v_l, v_a); //aplica os valores para os motores
 }
