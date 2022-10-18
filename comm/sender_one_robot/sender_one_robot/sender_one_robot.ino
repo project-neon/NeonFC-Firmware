@@ -12,8 +12,8 @@
 
 
 // colocar mac_address do robo desejado e seu respectivo ID
-uint8_t broadcastAddress[] = {0x0C, 0xDC, 0x7E, 0x5E, 0x97, 0x0C};
-int robot_id = 0; 
+uint8_t broadcastAddress[] = {0x24, 0x6F, 0x28, 0xAD, 0xD4, 0x80};
+int robot_id = 9;
 
 //==============
 

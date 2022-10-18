@@ -2,7 +2,6 @@
 #include <esp_wifi.h>
 #include <WiFi.h>
 
-#define CHANNEL 3
 
 // This is the code for the board that is connected to PC
 
@@ -60,8 +59,6 @@ void setup()
     Serial.println("Error initializing ESP-NOW");
     return;
   }
-
-  peerInfo.channel = CHANNEL;
 
 
   //register first peer
