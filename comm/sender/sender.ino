@@ -1,4 +1,5 @@
 #include <esp_now.h>
+#include <esp_wifi.h>
 #include <WiFi.h>
 
 #define CHANNEL 3
@@ -6,6 +7,7 @@
 // This is the code for the board that is connected to PC
 
 // MAC Adress de cada uma das placas que receberao comandos
+// uint8_t broadcast[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 // uint8_t broadcastAddress0[] = {0xA4, 0xCF, 0x12, 0x72, 0xB7, 0x20};
 uint8_t broadcastAddress0[] = {0x0C, 0xDC, 0x7E, 0x5E, 0x97, 0x0C};
 uint8_t broadcastAddress3[] = {0x0C, 0xDC, 0x7E, 0x5E, 0xA3, 0xE8};
@@ -38,8 +40,20 @@ esp_now_peer_info_t peerInfo;
 void setup() 
 {
   Serial.begin(115200);
-  
-  WiFi.mode(WIFI_STA);
+
+  ESP_ERROR_CHECK(esp_netif_init());
+  ESP_ERROR_CHECK(esp_event_loop_create_default());
+  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+  ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
+  ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
+  ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
+  ESP_ERROR_CHECK( esp_wifi_start());
+  ESP_ERROR_CHECK( esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE));
+  esp_wifi_set_max_tx_power(84);
+
+// ESP_ERROR_CHECK
+  // WiFi.mode(WIFI_STA);
+  // esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE);
 
   if (esp_now_init() != ESP_OK) 
   {

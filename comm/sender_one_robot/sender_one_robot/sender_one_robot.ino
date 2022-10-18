@@ -1,4 +1,5 @@
 #include <esp_now.h>
+#include <esp_wifi.h>
 #include <WiFi.h>
 
 // This is the code for the board that is connected to PC
@@ -11,8 +12,8 @@
 
 
 // colocar mac_address do robo desejado e seu respectivo ID
-uint8_t broadcastAddress[] = {0x24, 0x6F, 0x28, 0xAD, 0xD4, 0x80};
-int robot_id = 9; 
+uint8_t broadcastAddress[] = {0x0C, 0xDC, 0x7E, 0x5E, 0x97, 0x0C};
+int robot_id = 0; 
 
 //==============
 
@@ -44,7 +45,15 @@ void setup()
 {
   Serial.begin(115200);
   
-  WiFi.mode(WIFI_STA);
+  ESP_ERROR_CHECK(esp_netif_init());
+  ESP_ERROR_CHECK(esp_event_loop_create_default());
+  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+  ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
+  ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
+  ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
+  ESP_ERROR_CHECK( esp_wifi_start());
+  ESP_ERROR_CHECK( esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE));
+  esp_wifi_set_max_tx_power(84);
 
   if (esp_now_init() != ESP_OK) 
   {
