@@ -2,15 +2,18 @@
 #include <esp_wifi.h>
 #include <WiFi.h>
 
-
 // This is the code for the board that is connected to PC
 
-// MAC Adress de cada uma das placas que receberao comandos
-// uint8_t broadcast[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-// uint8_t broadcastAddress0[] = {0xA4, 0xCF, 0x12, 0x72, 0xB7, 0x20};
-uint8_t broadcastAddress0[] = {0x0C, 0xDC, 0x7E, 0x5E, 0x97, 0x0C};
-uint8_t broadcastAddress3[] = {0x0C, 0xDC, 0x7E, 0x5E, 0xA3, 0xE8};
-uint8_t broadcastAddress9[] = {0x24, 0x6F, 0x28, 0xAD, 0xD4, 0x80};
+// MAC Address de cada uma das placas que receberao comandos
+// MAC_Address_estação = {0xA4, 0xCF, 0x12, 0x72, 0xB7, 0x20}
+// MAC_Address_robo0 = {0x0C, 0xDC, 0x7E, 0x5E, 0x97, 0x0C}
+// MAC_Address_robo3 = {0x0C, 0xDC, 0x7E, 0x5E, 0xA3, 0xE8}
+// MAC_Address_robo9 = {0x24, 0x6F, 0x28, 0xAD, 0xD4, 0x80}
+
+
+// colocar mac_address do robo desejado e seu respectivo ID
+uint8_t broadcastAddress[] = {0x24, 0x6F, 0x28, 0xAD, 0xD4, 0x80};
+int robot_id = 9;
 
 //==============
 
@@ -36,10 +39,12 @@ commands robot_9;
 
 esp_now_peer_info_t peerInfo;
 
+//==============
+
 void setup() 
 {
   Serial.begin(115200);
-
+  
   ESP_ERROR_CHECK(esp_netif_init());
   ESP_ERROR_CHECK(esp_event_loop_create_default());
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
@@ -50,35 +55,14 @@ void setup()
   ESP_ERROR_CHECK( esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE));
   esp_wifi_set_max_tx_power(84);
 
-// ESP_ERROR_CHECK
-  // WiFi.mode(WIFI_STA);
-  // esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE);
-
   if (esp_now_init() != ESP_OK) 
   {
     Serial.println("Error initializing ESP-NOW");
     return;
   }
 
-
-  //register first peer
-  memcpy(peerInfo.peer_addr, broadcastAddress0, 6);
-  if (esp_now_add_peer(&peerInfo) != ESP_OK) 
-  {
-    Serial.println("Failed to add peer");
-    return;
-  }
-  
-  // register second peer
-  memcpy(peerInfo.peer_addr, broadcastAddress3, 6);
-  if (esp_now_add_peer(&peerInfo) != ESP_OK)
-  {
-    Serial.println("Failed to add peer");
-    return;
-  }
- 
-  // register third peer
-  memcpy(peerInfo.peer_addr, broadcastAddress9, 6);
+  // register peer
+  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
   if (esp_now_add_peer(&peerInfo) != ESP_OK)
   {
     Serial.println("Failed to add peer");
@@ -174,19 +158,26 @@ void parseData(){      // split the data into its parts
           strtokIndx = strtok(NULL, ","); 
           }
     }
-    
 }
 
 //===============
 
 void sendData()
 {   
-    // esse delay é necessário para que os dados sejam enviados corretamente
-    esp_err_t result_0 = esp_now_send(broadcastAddress0, (uint8_t *) &robot_0, sizeof(robot_0));
-    delay(3);
-    esp_err_t result_3 = esp_now_send(broadcastAddress3, (uint8_t *) &robot_3, sizeof(robot_3));
-    delay(3);
-    esp_err_t result_9 = esp_now_send(broadcastAddress9, (uint8_t *) &robot_9, sizeof(robot_9));
-    delay(3);
+    if(robot_id == 0){
+      esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &robot_0, sizeof(robot_0));
+      delay(2);
+      }
+      
+    else if(robot_id == 3){
+      esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &robot_3, sizeof(robot_3));
+      delay(2);
+      }
+      
+    else{
+      esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &robot_9, sizeof(robot_9));
+      delay(2);
+      }
+    
 
 }
