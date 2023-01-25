@@ -16,6 +16,12 @@ char tempChars[numChars];
 boolean newData = false;     
 int id, count;
 
+typedef struct struct_message{
+  char message[numChars];
+  } struct_message;
+
+struct_message commands;
+
 //==============
 
 
@@ -24,14 +30,14 @@ esp_now_peer_info_t peerInfo;
 void setup() {
   Serial.begin(115200);
 
-  ESP_ERROR_CHECK(esp_netif_init());
-  ESP_ERROR_CHECK(esp_event_loop_create_default());
+  esp_netif_init();
+  esp_event_loop_create_default();
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-  ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
-  ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
-  ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
-  ESP_ERROR_CHECK( esp_wifi_start());
-  ESP_ERROR_CHECK( esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE));
+  esp_wifi_init(&cfg);
+  esp_wifi_set_storage(WIFI_STORAGE_RAM);
+  esp_wifi_set_mode(WIFI_MODE_STA);
+  esp_wifi_start();
+  esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE);
   esp_wifi_set_max_tx_power(84);
 
 // ESP_ERROR_CHECK
@@ -63,6 +69,7 @@ void loop() {
       strcpy(tempChars, receivedChars);
           // this temporary copy is necessary to protect the original data
           //   because strtok() used in parseData() replaces the commas with \0
+      strcpy(commands.message, receivedChars);
       sendData();
       newData = false;
   }
@@ -107,5 +114,7 @@ void recvWithStartEndMarkers(){
 
 void sendData(){   
     // esse delay é necessário para que os dados sejam enviados corretamente
-    esp_err_t receivedChars = esp_now_send(broadcast_adr, (uint8_t *) &receivedChars, sizeof(receivedChars));
+    esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
+    delay(3);
+    
 }

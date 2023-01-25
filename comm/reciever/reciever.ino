@@ -2,7 +2,6 @@
 #include <esp_wifi.h>
 #include <WiFi.h>
 
-#define CHANNEL 3
 
 //pin definitions
 #define PWMA 19
@@ -18,25 +17,27 @@ float v_l, v_a;
 int first_mark, second_mark;
 
 
-typedef struct recieved_message {
-  int id;
-  float v_l;
-  float v_a;
-} recieved_message;
+const byte numChars = 64;
+char commands[numChars];
+char tempChars[numChars];
 
-recieved_message commands;
+int robot_id = 0;
+int id;
+float robot_vl;
+float robot_va;
 
-recieved_message robot;
+typedef struct struct_message{
+  char message[64];
+  } struct_message;
+
+struct_message rcv_commands;
+
 
 void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) {
-  memcpy(&commands, incomingData, sizeof(commands));
+  memcpy(&rcv_commands, incomingData, sizeof(rcv_commands));
   // Update the structures with the new incoming data
   first_mark = millis();
-
-  robot.id = commands.id;
-  robot.v_l = commands.v_l;
-  robot.v_a = commands.v_a;
-  Serial.println();
+  strcpy(commands, rcv_commands.message);
 }
 
 void motor_R(int speedR) { // se o valor for positivo gira para um lado e se for negativo troca o sentido
@@ -140,8 +141,11 @@ void setup() {
 void loop() {
   second_mark = millis();
 
-  v_l = robot.v_l;
-  v_a = robot.v_a;
+  strcpy(tempChars, commands);
+  parseData();
+
+  v_l = robot_vl;
+  v_a = robot_va;
 
 
   if (second_mark - first_mark > 500) {
@@ -151,4 +155,28 @@ void loop() {
 
 
   motors_control(v_l, v_a); //aplica os valores para os motores
+}
+
+void parseData(){
+    char * strtokIndx; // this is used by strtok() as an index
+  
+    strtokIndx = strtok(tempChars, ",");
+    
+    while (strtokIndx != NULL){
+        id = atoi(strtokIndx);
+        
+        if(id == robot_id){         
+          strtokIndx = strtok(NULL, ",");  
+          robot_vl = atof(strtokIndx);       
+          strtokIndx = strtok(NULL, ",");         
+          robot_va = atof(strtokIndx);
+          strtokIndx = strtok(NULL, ","); 
+       }
+
+       else{
+          strtokIndx = strtok(NULL, ",");     
+          strtokIndx = strtok(NULL, ",");         
+          strtokIndx = strtok(NULL, ","); 
+       }
+   } 
 }
