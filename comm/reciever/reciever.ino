@@ -1,5 +1,8 @@
 #include <esp_now.h>
+#include <esp_wifi.h>
 #include <WiFi.h>
+
+#define CHANNEL 3
 
 //pin definitions for board V1
 /*
@@ -74,13 +77,6 @@ void motors_control(float linear, float angular) {
   if (linear > 0 ) linear = map(linear, 0, 255, 60, 255);
   if (linear < 0 ) linear = map(linear, 0, -255, -60, -255);
 
-  Serial.print("Id: ");
-  Serial.println(robot.id);
-  Serial.print("V_L: ");
-  Serial.println(linear);
-  Serial.print("V_A: ");
-  Serial.println(angular);
-  Serial.println();
 
   float Vel_R = linear - angular; //ao somar o angular com linear em cada motor conseguimos a ideia de direcao do robo
   float Vel_L = linear + angular;
@@ -97,6 +93,7 @@ void motors_control(float linear, float angular) {
   motor_L(Vel_L);
 
 }
+
 
 void setup() {
   Serial.begin(115200);
@@ -122,12 +119,27 @@ void setup() {
 
   // configurações comunicação
 
-  WiFi.mode(WIFI_STA);
+  ESP_ERROR_CHECK(esp_netif_init());
+  ESP_ERROR_CHECK(esp_event_loop_create_default());
+  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+  ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
+  ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
+  ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
+  ESP_ERROR_CHECK( esp_wifi_start());
+  ESP_ERROR_CHECK( esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE));
+  // esp_wifi_set_max_tx_power(84);
 
-  if (esp_now_init() != ESP_OK) {
+// ESP_ERROR_CHECK
+  // WiFi.mode(WIFI_STA);
+  // esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE);
+
+  if (esp_now_init() != ESP_OK) 
+  {
     Serial.println("Error initializing ESP-NOW");
     return;
   }
+
+  // esp_wifi_set_channel(CHANNEL, WIFI_SECOND_CHAN_NONE);
 
   esp_now_register_recv_cb(OnDataRecv);
   
@@ -145,10 +157,12 @@ void loop() {
   v_l = robot.v_l;
   v_a = robot.v_a;
 
+
   if (second_mark - first_mark > 500) {
     v_l = 0.00;
     v_a = 0.00;
   }
+
 
   motors_control(v_l, v_a); //aplica os valores para os motores
 }
