@@ -2,8 +2,8 @@
 #include <esp_wifi.h>
 #include <WiFi.h>
 
-
-//definição dos pins
+//pin definitions for board V1
+/*
 #define PWMA 19
 #define PWMB 27
 #define A1  5
@@ -11,10 +11,20 @@
 #define B1  25
 #define B2  26
 #define stby 33
+*/
 
+//pin definitions for Placa V2
+#define PWMA 32
+#define PWMB 13
+#define A1  25
+#define A2  33
+#define B1  26
+#define B2  27
+
+// This is de code for the board that is in robots
 int robot_id = 9;
 int id;
-int first_mark, second_mark;
+int first_mark = 0, second_mark;
 
 float v_l, v_a;
 
@@ -97,12 +107,12 @@ void setup() {
   ledcSetup(1, 80000, 8);
   ledcSetup(2, 80000, 8);
 
-  pinMode(stby, OUTPUT);
+  //pinMode(stby, OUTPUT);
   pinMode(A1, OUTPUT);
   pinMode(A2, OUTPUT);
   pinMode(B1, OUTPUT);
   pinMode(B2, OUTPUT);
-  digitalWrite(stby, 1);
+  //digitalWrite(stby, 1);
   digitalWrite(A1, 0);
   digitalWrite(A2, 0);
   digitalWrite(B1, 0);
@@ -128,6 +138,10 @@ void setup() {
   esp_now_register_recv_cb(OnDataRecv);
   
   // configuração mpu
+
+  Serial.print("ESP Board MAC Address:  ");
+  Serial.println(WiFi.macAddress());
+
   mpu_init();
 }
 
