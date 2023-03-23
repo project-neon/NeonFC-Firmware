@@ -8,5 +8,4 @@ float pid(float target, float atual){
 	float output = error * kp ;
 
 	return output;
-
 }
