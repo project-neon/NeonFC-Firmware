@@ -77,6 +77,8 @@ void setup(void) {
 
   PS4.begin("b0:05:94:46:2d:7c");
   Serial.println("Ready.");
+
+  //configuração de pinos
   
   ledcAttachPin(PWMA, 1);
   ledcAttachPin(PWMB, 2);
@@ -84,17 +86,21 @@ void setup(void) {
   ledcSetup(1, 80000, 8);
   ledcSetup(2, 80000, 8);
 
-  pinMode(stby, OUTPUT);
+  #if BOARD == BOARD_V1
+    pinMode(stby, OUTPUT);
+    digitalWrite(stby, 1);
+  #endif
+    
   pinMode(A1, OUTPUT);
   pinMode(A2, OUTPUT);
   pinMode(B1, OUTPUT);
   pinMode(B2, OUTPUT);
-  digitalWrite(stby, 1);
   digitalWrite(A1, 0);
   digitalWrite(A2, 0);
   digitalWrite(B1, 0);
   digitalWrite(B2, 0);
 
+  //configuração mpu
   mpu_init();
 
   while(PS4.isConnected()!= true) delay(20);
