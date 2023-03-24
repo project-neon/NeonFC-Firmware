@@ -2,13 +2,29 @@
 #include <PS4Controller.h>
 
 //Setup pinos Locomocão Ponte H (TB6612fng)
-#define PWMA 19
-#define PWMB 27
-#define A1    5
-#define A2   32
-#define B1   25
-#define B2   26
-#define stby 33
+#define BOARD_V1 1
+#define BOARD_V2 2
+#define BOARD BOARD_V1
+//pin definitions for board V1
+#if BOARD == BOARD_V1
+  #define PWMA 19
+  #define PWMB 27
+  #define A1    5
+  #define A2   32
+  #define B1   25
+  #define B2   26
+  #define stby 33
+//pin definitions for board V2
+#elif BOARD == BOARD_V2
+  #define PWMA 32
+  #define PWMB 13
+  #define A1   25
+  #define A2   33
+  #define B1   26
+  #define B2   27
+#else
+  #error Board not defined!
+#endif
 
 void motor_R(int speedR) { // se o valor for positivo gira para um lado e se for negativo troca o sentido
   if (speedR > 0) {
@@ -57,8 +73,7 @@ void motors_control(int linear, int angular) {
 
 void setup(void) {
   Serial.begin(115200);
-  while (!Serial)
-    delay(10); // will pause Zero, Leonardo, etc until serial console opens
+  while (!Serial) delay(10); // will pause Zero, Leonardo, etc until serial console opens
 
   PS4.begin("b0:05:94:46:2d:7c");
   Serial.println("Ready.");
