@@ -22,7 +22,7 @@
 #define B2  27
 
 // This is de code for the board that is in robots
-int robot_id = 9;
+int robot_id = 1;
 int id;
 int first_mark = 0, second_mark;
 
