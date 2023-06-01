@@ -1,7 +1,4 @@
-float last_error = 0;
-float error_sum = 0;
-
-float pid(float target, float atual, float kp, float ki, float kd, int *iterations, float *error_total){
+float pid(float target, float atual, int *iterations, float *error_total){
 	float error = target - atual;
   error_sum += error;
 

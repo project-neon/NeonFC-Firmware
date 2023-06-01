@@ -28,9 +28,13 @@ int id;
 int first_mark = 0, second_mark;
 int i = 0;
 
-float new_value = 0;
+bool newData = false;
+
+float lastValue = 0;
 float v_l, v_a;
 float kp, ki, kd;
+float last_error = 0;
+float error_sum = 0;
 
 const byte numChars = 64;
 char commands[numChars];
@@ -56,6 +60,7 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   // Update the structures with the new incoming data
   first_mark = millis();
   strcpy(commands, rcv_commands.message);
+  newData = true;
 }
 // ==================================================================================
 
@@ -85,7 +90,7 @@ void motor_L(int speedL) {
 
 
 void motors_control(float linear, float angular, float *error_total, int *iterations){
-  angular = pid(angular, - get_theta_speed(), kp, ki, kd, iterations, error_total);
+  angular = pid(angular, - get_theta_speed(), iterations, error_total);
 
   if (linear > 0 ) linear = map(linear, 0, 255, 60, 255);
   if (linear < 0 ) linear = map(linear, 0, -255, -60, -255);
@@ -108,15 +113,17 @@ void motors_control(float linear, float angular, float *error_total, int *iterat
 }
 
 float test_pid(){
+  last_error = 0, error_sum = 0;
   float error_total = 0;
   int iterations = 0, t0 = millis();
   
   while(millis() - t0 < 1000){
-    motors_control(0, 3.14, &error_total, &iterations);
+    motors_control(20, 7, &error_total, &iterations);
   }
   while(millis() - t0 < 1500){
     motors_control(0, 0, &error_total, &iterations);
   }
+  motors_control(0, 0, &error_total, &iterations);
   
   return error_total;
 }
@@ -177,20 +184,22 @@ void setup() {
 }
 
 void loop() {
-  second_mark = millis();
-  digitalWrite(LED, LOW);
-
-  strcpy(tempChars, commands); // necessário para proteger a informação original
-  parseData();
+  if(newData){
+    newData = false;
+    second_mark = millis();
+    digitalWrite(LED, LOW);
   
-  send_command.value = test_pid();
-
-  if(new_value != send_command.value){
-    sendData();
-    new_value = send_command.value;
-    }
+    strcpy(tempChars, commands); // necessário para proteger a informação original
+    parseData();
+    
+    send_command.value = test_pid();
+  
+    if(lastValue != send_command.value){
+      sendData();
+      lastValue = send_command.value;
+      }
+  }
 }
-
 void parseData(){
     char * strtokIndx;
   

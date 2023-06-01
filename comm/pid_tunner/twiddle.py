@@ -8,7 +8,7 @@ def twiddle(k, dk, ksi=.1, target=None):
     if not target:
         target = run_pid_test(*k)
 
-    for i in range(k):
+    for i, _ in enumerate(k):
         k[i] += dk[i]
         new_error = run_pid_test(*k)
 
@@ -31,11 +31,13 @@ def twiddle(k, dk, ksi=.1, target=None):
     return k, dk, ksi, target
 
 def run_pid_test(kp, ki, kd):
+    print(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>")
     esp32.write(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>".encode())
-    sleep(20)
+    sleep(2)
     error = esp32.readline()
     error = error.decode()
-    return float(error)
+    print(error)
+    return abs(float(error))
 
 params = [[-.125, 0, 0], [.1, .05, .05]]
 while True:

@@ -124,4 +124,5 @@ void sendData(){
     // esse delay é necessário para que os dados sejam enviados corretamente
     esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &snd_commands, sizeof(snd_commands));
     delay(3);
+    digitalWrite(LED, LOW);
 }
