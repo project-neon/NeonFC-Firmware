@@ -39,7 +39,7 @@ def run_pid_test(kp, ki, kd):
     print(error)
     return abs(float(error))
 
-params = [[-.125, 0, 0], [.1, .05, .05]]
+params = [[-0.3174620316479758, -0.4394222543422045, 0.01719268215869934], [0.1, 0.05, 0.05]]
 while True:
     command = input("(1) run one\n"
                     "(2) run n\n"
