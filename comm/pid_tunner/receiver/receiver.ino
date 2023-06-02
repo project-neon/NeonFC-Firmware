@@ -200,7 +200,7 @@ void loop() {
     strcpy(tempChars, commands); // necessário para proteger a informação original
     parseData();
     
-    send_command.value = test_pid();
+    send_command.value = test_pid() * 10000;
   
     if(lastValue != send_command.value){
       sendData();
