@@ -33,7 +33,7 @@ def twiddle(k, dk, ksi=.1, target=None):
 def run_pid_test(kp, ki, kd):
     print(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>")
     esp32.write(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>".encode())
-    sleep(2)
+    sleep(8)
     error = esp32.readline()
     error = error.decode()
     print(error)

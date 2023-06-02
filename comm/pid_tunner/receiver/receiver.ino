@@ -117,13 +117,21 @@ float test_pid(){
   float error_total = 0;
   int iterations = 0, t0 = millis();
   
-  while(millis() - t0 < 1000){
-    motors_control(20, 7, &error_total, &iterations);
+  while(millis() - t0 < 2000){
+    motors_control(100, 0, &error_total, &iterations);
   }
-  while(millis() - t0 < 1500){
+  while(millis() - t0 < 4000){
+    motors_control(-100, 0, &error_total, &iterations);
+  }
+  while(millis() - t0 < 5000){
+    motors_control(50, 4, &error_total, &iterations);
+  }
+  while(millis() - t0 < 6000){
+    motors_control(-50, -4, &error_total, &iterations);
+  }
+  while(millis() - t0 < 7500){
     motors_control(0, 0, &error_total, &iterations);
   }
-  motors_control(0, 0, &error_total, &iterations);
   
   return error_total;
 }
