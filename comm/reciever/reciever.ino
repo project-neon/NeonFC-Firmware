@@ -27,6 +27,8 @@ int id;
 int first_mark = 0, second_mark;
 
 float v_l, v_a;
+float last_error = 0;
+float error_sum = 0;
 
 const byte numChars = 64;
 char commands[numChars];
@@ -155,6 +157,9 @@ void loop() {
   if (second_mark - first_mark > 500) {
     v_l = 0.00;
     v_a = 0.00;
+    last_error = 0;
+    error_sum = 0;
+
   }
 
   motors_control(v_l, v_a); //aplica os valores para os motores

@@ -1,10 +1,7 @@
-float last_error = 0;
-float error_sum = 0;
-
 float pid(float target, float atual){
-	float kp = -0.125;
-	float kd = 0;
-	float ki = 0;
+	float kp = 0.0135;
+	float ki = -0.389;
+	float kd = 0.0171;
 
 	float error = target - atual;
   error_sum += error;

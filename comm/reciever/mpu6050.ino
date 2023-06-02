@@ -30,6 +30,6 @@ float get_theta_speed(){
 
 	sensors_event_t a, g, temp;
 	mpu.getEvent(&a, &g, &temp);
-	float theta = g.gyro.z * 180 / 3.14; 
+	float theta = g.gyro.z; 
 	return theta;
 }
