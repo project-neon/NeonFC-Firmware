@@ -218,11 +218,14 @@ void parseData(){
         
         if(id == robot_id){         
           strtokIndx = strtok(NULL, ",");  
-          kp = atof(strtokIndx);       
+          kp = atof(strtokIndx);
+          kp /= 100;       
           strtokIndx = strtok(NULL, ",");         
           ki = atof(strtokIndx);
+          ki /= 100; 
           strtokIndx = strtok(NULL, ","); 
           kd = atof(strtokIndx);
+          kd /= 100; 
           strtokIndx = strtok(NULL, ","); 
        }
 

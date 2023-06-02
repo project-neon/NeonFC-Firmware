@@ -4,7 +4,7 @@ from random import randint
 
 esp32 = serial.Serial('/dev/ttyUSB0', 115200)
 
-def twiddle(k, dk, ksi=.1, target=None):
+def twiddle(k, dk, ksi=.3, target=None):
     if not target:
         target = run_pid_test(*k)
 
@@ -32,14 +32,14 @@ def twiddle(k, dk, ksi=.1, target=None):
 
 def run_pid_test(kp, ki, kd):
     print(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>")
-    esp32.write(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>".encode())
+    esp32.write(f"<{0},{0},{0},{0},{3},{100*kp},{100*ki},{100*kd},{9},{0},{0},{0}>".encode())
     sleep(8)
     error = esp32.readline()
     error = error.decode()
     print(error)
     return abs(float(error))
 
-params = [[-0.3174620316479758, -0.4394222543422045, 0.01719268215869934], [0.1, 0.05, 0.05]]
+params = [[-1.858962031647976, -0.16864975434220458, 0.16686768215869935], [0.538265, 0.049981750000000005, 0.049981750000000005]]
 while True:
     command = input("(1) run one\n"
                     "(2) run n\n"

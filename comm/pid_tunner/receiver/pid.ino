@@ -3,7 +3,7 @@ float pid(float target, float atual, int *iterations, float *error_total){
   error_sum += error;
 
   (*iterations)++;
-  *error_total = (((*error_total) * ((*iterations) - 1)) + error) / (*iterations);
+  *error_total = (((*error_total) * ((*iterations) - 1)) + abs(error)) / (*iterations);
  
   float P = error * kp;
   float I = error_sum * ki;
