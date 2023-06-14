@@ -1,10 +1,9 @@
-float pid(float target, float atual){
-	float kp = -1.59521;
-	float ki = -0.16864;
-	float kd = 0.16686;
-
+float pid(float target, float atual, int *iterations, float *error_total){
 	float error = target - atual;
   error_sum += error;
+
+  (*iterations)++;
+  *error_total = (((*error_total) * ((*iterations) - 1)) + abs(error)) / (*iterations);
  
   float P = error * kp;
   float I = error_sum * ki;
