@@ -41,6 +41,11 @@ typedef struct struct_message{
 
 struct_message rcv_commands;
 
+float wheelRadius = 0.035;
+float robotRadius = 0.068;
+float ks = 0.9999;
+float kv = 0.0208;
+
 
 void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) {
   memcpy(&rcv_commands, incomingData, sizeof(rcv_commands));
@@ -50,7 +55,7 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
 }
 
 
-void motor_R(int speedR) { // se o valor for positivo gira para um lado e se for negativo troca o sentido
+void motor_R(float speedR) { // se o valor for positivo gira para um lado e se for negativo troca o sentido
   if (speedR > 0) {
     digitalWrite(A1, 1);
     digitalWrite(A2, 0);
@@ -58,11 +63,17 @@ void motor_R(int speedR) { // se o valor for positivo gira para um lado e se for
     digitalWrite(A1, 0);
     digitalWrite(A2, 1);
   }
-  ledcWrite(1, abs( speedR));
+
+  float angular = abs(speedR/wheelRadius);
+  float voltage = ks + kv*angular;
+  float pwm = map(voltage, 0, get_voltage(), 0, 255);
+  if(pwm > 255) pwm = 255;
+
+  ledcWrite(1, pwm);
 }
 
 
-void motor_L(int speedL) {
+void motor_L(float speedL) {
   if (speedL > 0) {
     digitalWrite(B1, 1);
     digitalWrite(B2, 0);
@@ -70,31 +81,24 @@ void motor_L(int speedL) {
     digitalWrite(B1, 0);
     digitalWrite(B2, 1);
   }
-  ledcWrite(2, abs( speedL));
+
+  float angular = abs(speedL/wheelRadius);
+  float voltage = ks + kv*angular;
+  float pwm = map(voltage, 0, get_voltage(), 0, 255);
+  if(pwm > 255) pwm = 255;
+
+  ledcWrite(2, pwm);
 }
 
 
 void motors_control(float linear, float angular) {
   angular = pid(angular, - get_theta_speed());
 
-  if (linear > 0 ) linear = map(linear, 0, 255, 60, 255);
-  if (linear < 0 ) linear = map(linear, 0, -255, -60, -255);
-
-
-  float Vel_R = linear - angular; //ao somar o angular com linear em cada motor conseguimos a ideia de direcao do robo
-  float Vel_L = linear + angular;
-
-  if (Vel_R < 15 && Vel_R > -15) Vel_R = 0;
-  if (Vel_R > 255 ) Vel_R = 255;
-  if (Vel_R < -255) Vel_R = -255;
-
-  if (Vel_L < 15 && Vel_L > -15) Vel_L = 0;
-  if (Vel_L > 255 ) Vel_L = 255;
-  if (Vel_L < -255) Vel_L = -255;
+  float Vel_R = linear - robotRadius * angular / 2; //ao somar o angular com linear em cada motor conseguimos a ideia de direcao do robo
+  float Vel_L = linear + robotRadius * angular / 2;
 
   motor_R(Vel_R); //manda para a funcao motor um valor de -255 a 255, o sinal signifca a direcao
   motor_L(Vel_L);
-
 }
 
 
