@@ -1,7 +1,7 @@
 float pid(float target, float atual){
-	float kp = 0;
-	float ki = 0;
-	float kd = 0;
+	float kp = 1.1673677488629994;
+	float ki = 0.04997524427000001;
+	float kd = 0.017761787669999994;
 
 	float error = target - atual;
   error_sum += error;

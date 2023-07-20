@@ -68,6 +68,7 @@ void motor_R(float speedR) { // se o valor for positivo gira para um lado e se f
   float voltage = ks + kv*angular;
   float pwm = map(voltage, 0, get_voltage(), 0, 255);
   if(pwm > 255) pwm = 255;
+  if(speedR < speedMin) pwm = 0;
 
   ledcWrite(1, pwm);
 }
@@ -85,13 +86,14 @@ void motor_L(float speedL) {
   float voltage = ks + kv*angular;
   float pwm = map(voltage, 0, get_voltage(), 0, 255);
   if(pwm > 255) pwm = 255;
+  if(speedL < speedMin) pwm = 0;
 
   ledcWrite(2, pwm);
 }
 
 
 void motors_control(float linear, float angular) {
-  angular = pid(angular, - get_theta_speed());
+  angular = angular + pid(angular, - get_theta_speed());
 
   float Vel_R = linear - robotRadius * angular; //ao somar o angular com linear em cada motor conseguimos a ideia de direcao do robo
   float Vel_L = linear + robotRadius * angular;
