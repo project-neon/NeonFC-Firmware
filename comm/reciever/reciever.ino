@@ -22,7 +22,7 @@
 #define B2  27
 
 // This is de code for the board that is in robots
-int robot_id = 3;
+int robot_id = 2;
 int id;
 int first_mark = 0, second_mark;
 
@@ -45,6 +45,7 @@ float wheelRadius = 0.035/2;
 float robotRadius = 0.075/2;
 float ks = 0.99;
 float kv = 0.1736;
+float speedMin = 0.05;
 
 
 void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) {
