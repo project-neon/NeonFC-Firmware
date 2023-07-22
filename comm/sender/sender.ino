@@ -2,6 +2,7 @@
 #include <esp_wifi.h>
 #include <WiFi.h>
 
+#define LED 2
 
 // MAC Adress genérico para enviar os dados no canal selecionado
 uint8_t broadcast_adr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
@@ -51,7 +52,9 @@ void setup() {
     Serial.println("Failed to add peer");
     return;
   }
- 
+
+  pinMode(LED, OUTPUT);
+
 }
 
 //=============
@@ -106,6 +109,8 @@ void recvWithStartEndMarkers(){
 void sendData(){   
     // esse delay é necessário para que os dados sejam enviados corretamente
     esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
+    // digitalWrite(LED, HIGH);
     delay(3);
+    // digitalWrite(LED, LOW);
     
 }
