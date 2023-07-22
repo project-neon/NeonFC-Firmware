@@ -69,7 +69,8 @@ void motor_R(float speedR) { // se o valor for positivo gira para um lado e se f
     digitalWrite(A2, 1);
   }
 
-  float angular = abs(speedR/wheelRadius);
+  speedR = abs(speedR);
+  float angular = speedR/wheelRadius;
   float voltage = ks + kv*angular;
   float pwm = map(voltage, 0, get_voltage(), 0, 255);
   if(pwm > 255) pwm = 255;
@@ -86,8 +87,9 @@ void motor_L(float speedL) {
     digitalWrite(B1, 0);
     digitalWrite(B2, 1);
   }
-  
-  float angular = abs(speedL/wheelRadius);
+
+  speedL = abs(speedL);
+  float angular = speedL/wheelRadius;
   float voltage = ks + kv*angular;
   float pwm = map(voltage, 0, get_voltage(), 0, 255);
   if(pwm > 255) pwm = 255;
