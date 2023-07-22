@@ -33,9 +33,11 @@ float error_sum = 0;
 const byte numChars = 64;
 char commands[numChars];
 char tempChars[numChars];
+int header;
 
 
 typedef struct struct_message{
+  int header;
   char message[64];
   } struct_message;
 
@@ -53,6 +55,8 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   // Update the structures with the new incoming data
   first_mark = millis();
   strcpy(commands, rcv_commands.message);
+  header = rcv_commands.header;
+  blink_led();
 }
 
 
@@ -135,7 +139,7 @@ void setup() {
   ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
   ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
   ESP_ERROR_CHECK( esp_wifi_start());
-  ESP_ERROR_CHECK( esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE));
+  ESP_ERROR_CHECK( esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE));
 
   if (esp_now_init() != ESP_OK) 
   {
@@ -151,14 +155,19 @@ void setup() {
   Serial.println(WiFi.macAddress());
 
   mpu_init();
+
+  ws2812_init();
 }
 
 
 void loop() {
   second_mark = millis();
-
-  strcpy(tempChars, commands); // necessário para proteger a informação original
-  parseData();
+  
+  if(header == 1910){
+    strcpy(tempChars, commands); // necessário para proteger a informação original
+    parseData();
+    header = 0;
+  }
 
   if (second_mark - first_mark > 500) {
     v_l = 0.00;

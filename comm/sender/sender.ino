@@ -15,6 +15,7 @@ boolean newData = false;
 int id, count;
 
 typedef struct struct_message{
+  int header;
   char message[numChars];
   } struct_message;
 
@@ -34,7 +35,7 @@ void setup() {
   ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
   ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
   ESP_ERROR_CHECK(esp_wifi_start());
-  ESP_ERROR_CHECK(esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE));
+  ESP_ERROR_CHECK(esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE));
   esp_wifi_set_max_tx_power(84);
 
 
@@ -59,6 +60,7 @@ void loop() {
   recvWithStartEndMarkers();
   if (newData == true){
       strcpy(commands.message, receivedChars);
+      commands.header = 1910;
       sendData();
       newData = false;
   }
