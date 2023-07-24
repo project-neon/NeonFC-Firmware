@@ -1,5 +1,25 @@
+#include <ESPmDNS.h>
 #include <esp_now.h>
+#include <esp_wifi.h>
 #include <WiFi.h>
+
+uint8_t broadcast_adr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+
+const byte numChars = 64;
+char receivedChars[numChars];
+char tempChars[numChars];   
+boolean newData = false;     
+int id, count;
+
+typedef struct struct_message{
+  float value;
+} struct_message;
+
+struct_message commands;
+
+//==============
+
+esp_now_peer_info_t peerInfo;
 
 //pin definitions
 #define PWMA 32
@@ -8,6 +28,7 @@
 #define A2  33
 #define B1  26
 #define B2  27
+//#define S1  16
 
 #define d1  35
 #define d2  34
@@ -22,7 +43,7 @@ const int dip[4] = {35,34,39,36};
 // This is de code for the board that is in robots
 float v_l, v_a;
 int first_mark, second_mark;
-
+float lastValue = 0;
 
 typedef struct recieved_message {
   int id;
@@ -111,7 +132,9 @@ void setup() {
   pinMode(A2, OUTPUT);
   pinMode(B1, OUTPUT);
   pinMode(B2, OUTPUT);
-  
+
+//  pinMode(S1, OUTPUT);
+ 
   pinMode(d1, INPUT);
   pinMode(d2, INPUT);
   pinMode(d3, INPUT);
@@ -122,18 +145,29 @@ void setup() {
   digitalWrite(B1, 0);
   digitalWrite(B2, 0);
 
-/*
-  // configurações comunicação
+  ESP_ERROR_CHECK(esp_netif_init());
+  ESP_ERROR_CHECK(esp_event_loop_create_default());
+  wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+  ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+  ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+  ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+  ESP_ERROR_CHECK(esp_wifi_start());
+  ESP_ERROR_CHECK(esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE));
+  esp_wifi_set_max_tx_power(84);
 
-  WiFi.mode(WIFI_STA);
 
-  if (esp_now_init() != ESP_OK) {
-    LOG("Error initializing ESP-NOW"); ENDL
+  if (esp_now_init() != ESP_OK) 
+  {
+    Serial.println("Error initializing ESP-NOW");
     return;
   }
 
-  esp_now_register_recv_cb(OnDataRecv);
-  */
+  memcpy(peerInfo.peer_addr, broadcast_adr, 6);
+  if (esp_now_add_peer(&peerInfo) != ESP_OK) 
+  {
+    Serial.println("Failed to add peer");
+    return;
+  }
 
   // configuração mpu
   
@@ -141,40 +175,48 @@ void setup() {
   ina219_init();
   ws2812_init();
   test_current();
-  dip_state();
 }
 
 void loop() {
 
   LOG("Test Start:"); ENDL;
-
+  LOG(get_theta_speed()); ENDL;
+  
   LOG("motors test:"); ENDL;
+  
+  commands.value = get_voltage();
+
+//  tone(S1, 1000);
+//  delay(1000);
+//  noTone(S1);
+  
   for (int i = 0; i < 1; ++i)
-  {
-    
-    LOG("motor A foward"); ENDL;
+  { 
+    LOG("motor A forward"); ENDL;
     motor_R(150);
     delay(1000);
-    LOG("current A -----"); LOG(get_current()); ENDL;
+    // LOG("current A -----"); LOG(get_current()); ENDL;
+    // LOG("voltage -------"); LOG(get_voltage()); ENDL;
     LOG("motor A backward"); ENDL;
     motor_R(-150);
     delay(1000);
     motor_R(0);
-    LOG("motor B foward"); ENDL;
+    LOG("motor B forward"); ENDL;
     motor_L(150);
     delay(1000);
-    LOG("current B -----"); LOG(get_current()); ENDL;
+    // LOG("current B -----"); LOG(get_current()); ENDL;
+    // LOG("voltage -------"); LOG(get_voltage()); ENDL;
     LOG("motor B backward"); ENDL;
     motor_L(-150);
     delay(1000);
     motor_L(0);
   }
 
-  
-   dip_state();
+//  dip_state();
 
-  ws2812_test();
+//  ws2812_test();
 
+//  sendData();
 }
 
 void dip_state(){
@@ -188,4 +230,10 @@ void dip_state(){
     LOG(state); LOG(",");
   }
  
+}
+
+void sendData() {   
+    // esse delay é necessário para que os dados sejam enviados corretamente
+    esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
+    delay(3);
 }
