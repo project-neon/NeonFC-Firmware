@@ -61,3 +61,7 @@ float get_current(){
 	return ina219.getCurrent_mA();
 }
 
+float get_voltage() {
+  float voltage = ina219.getBusVoltage_V();
+  return voltage;
+}
