@@ -30,6 +30,8 @@ float v_l, v_a;
 float last_error = 0;
 float error_sum = 0;
 
+float kps[3] = {2.0317307, 1.2771797, 1.702362};
+
 const byte numChars = 64;
 char commands[numChars];
 char tempChars[numChars];
@@ -56,7 +58,7 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   first_mark = millis();
   strcpy(commands, rcv_commands.message);
   header = rcv_commands.header;
-  blink_led();
+  // blink_led();
 }
 
 
@@ -163,9 +165,8 @@ void setup() {
 
 
 void loop() {
-  second_mark = millis();
-  
   if(header == 1910){
+    second_mark = millis();
     strcpy(tempChars, commands); // necessário para proteger a informação original
     parseData();
     header = 0;

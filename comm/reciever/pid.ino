@@ -1,5 +1,5 @@
 float pid(float target, float atual){
-	float kp = 1.2771797912363618;
+  float kp = kps[id-1];
 	float ki = 0;
 	float kd = 0;
 
