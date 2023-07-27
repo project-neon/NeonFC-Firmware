@@ -2,21 +2,19 @@
 #include <esp_wifi.h>
 #include <WiFi.h>
 
-
 // MAC Adress genérico para enviar os dados no canal selecionado
 uint8_t broadcast_adr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 //==============
-
 const byte numChars = 64;
 char receivedChars[numChars];
-char tempChars[numChars];   
+char tempChars[numChars];    
 boolean newData = false;     
 int id, count;
 
 typedef struct struct_message{
   char message[numChars];
-  } struct_message;
+} struct_message;
 
 struct_message commands;
 
@@ -58,9 +56,9 @@ void setup() {
 void loop() {
   recvWithStartEndMarkers();
   if (newData == true){
-      strcpy(commands.message, receivedChars);
-      sendData();
-      newData = false;
+    strcpy(commands.message, receivedChars);
+    sendData();
+    newData = false;
   }
 }
 
@@ -100,10 +98,8 @@ void recvWithStartEndMarkers(){
     }
 }
 
-
 void sendData(){   
     // esse delay é necessário para que os dados sejam enviados corretamente
     esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
     delay(3);
-    
 }

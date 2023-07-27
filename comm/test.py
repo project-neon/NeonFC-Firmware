@@ -2,7 +2,7 @@ import serial
 from random import randint
 
 # No Linux, a porta não será "COMX" e sim algo parecido com a linha abaixo
-esp32 = serial.Serial('/dev/ttyUSB0', 115200)
+esp32 = serial.Serial('/dev/ttyACM1', 115200)
 # esp32 = serial.Serial("COM6", 115200)
 
 i = 0
