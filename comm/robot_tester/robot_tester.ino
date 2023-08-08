@@ -11,12 +11,6 @@ char tempChars[numChars];
 boolean newData = false;     
 int id, count;
 
-typedef struct struct_message{
-  float value;
-} struct_message;
-
-struct_message commands;
-
 //==============
 
 esp_now_peer_info_t peerInfo;
@@ -76,6 +70,7 @@ void motor_R(int speedR) { // se o valor for positivo gira para um lado e se for
   }
   ledcWrite(1, abs( speedR));
 }
+
 void motor_L(int speedL) {
   if (speedL > 0) {
     digitalWrite(B1, 1);
@@ -155,7 +150,6 @@ void setup() {
   ESP_ERROR_CHECK(esp_wifi_set_channel(1, WIFI_SECOND_CHAN_NONE));
   esp_wifi_set_max_tx_power(84);
 
-
   if (esp_now_init() != ESP_OK) 
   {
     Serial.println("Error initializing ESP-NOW");
@@ -183,8 +177,6 @@ void loop() {
   LOG(get_theta_speed()); ENDL;
   
   LOG("motors test:"); ENDL;
-  
-  commands.value = get_voltage();
 
 //  tone(S1, 1000);
 //  delay(1000);

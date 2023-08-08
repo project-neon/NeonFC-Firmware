@@ -24,7 +24,7 @@ char commands[numChars];
 char tempChars[numChars];
 
 typedef struct struct_message{
-  char message[64];
+  char message[numChars];
 } struct_message;
 
 struct_message rcv_commands;
@@ -34,7 +34,6 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   // Update the structures with the new incoming data
   first_mark = millis();
   strcpy(commands, rcv_commands.message);
-  Serial.println(commands);
 }
 
 void motor_R(int speedR) { // se o valor for positivo gira para um lado e se for negativo troca o sentido
@@ -129,6 +128,7 @@ void loop() {
   second_mark = millis();
 
   strcpy(tempChars, commands); // necessario para proteger a informacao original
+
   parseData();
 
   if (second_mark - first_mark > 500) {
