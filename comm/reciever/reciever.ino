@@ -19,6 +19,8 @@ float v_l, v_a;
 float last_error = 0;
 float error_sum = 0;
 
+float kps[6] = {1.0630948, 1.4682441, 1.4355457, 1.4529617, 1.827577, 1.076275};
+
 const byte numChars = 64;
 char commands[numChars];
 char tempChars[numChars];
