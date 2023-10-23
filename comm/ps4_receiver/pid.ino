@@ -1,5 +1,5 @@
 float pid(float target, float atual){
-	float kp = 1; // motor antigo, motor novo kp = .25
+	float kp = 1.178007; // motor antigo, motor novo kp = .25
 	float kd = 0;
 	float ki = 0;
 
