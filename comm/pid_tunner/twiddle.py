@@ -27,19 +27,20 @@ def twiddle(k, dk, ksi=.3, target=None):
             else:
                 k[i] += dk[i]
                 dk[i] *= 1 - ksi
+               
 
     return k, dk, ksi, target
 
-def run_pid_test(kp, ki, kd):
+def run_pid_test(kp, ki=0, kd=0):
     print(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>")
-    esp32.write(f"<{0},{0},{0},{0},{3},{100*kp},{100*ki},{100*kd},{9},{0},{0},{0}>".encode())
-    sleep(8)
+    esp32.write(f"<{0},{0},{0},{0},{3},{1000*kp},{1000*ki},{1000*kd},{9},{0},{0},{0}>".encode())
+    sleep(7)
     error = esp32.readline()
     error = error.decode()
     print(error)
     return abs(float(error))
 
-params = [[-1.858962031647976, -0.16864975434220458, 0.16686768215869935], [0.538265, 0.049981750000000005, 0.049981750000000005]]
+params = [[0], [0.5]]
 while True:
     command = input("(1) run one\n"
                     "(2) run n\n"
