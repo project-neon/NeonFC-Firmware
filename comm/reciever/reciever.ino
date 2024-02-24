@@ -30,7 +30,8 @@ float v_l, v_a;
 float last_error = 0;
 float error_sum = 0;
 
-float kps[3] = {2.0317307, 1.2771797, 1.702362};
+float kps [10] = {2.0317307, 1.2771797, 1.702362};
+
 
 const byte numChars = 64;
 char commands[numChars];
@@ -115,6 +116,13 @@ void motors_control(float linear, float angular) {
 void setup() {
   Serial.begin(115200);
 
+  // define kps values for diferent robot ids
+
+  kps[5] = 1.1780;
+  kps[7] = 1.0792;
+  kps[8] = 0.9700;
+  
+
   // configuração de pinos
 
   ledcAttachPin(PWMA, 1);
@@ -161,12 +169,13 @@ void setup() {
   mpu_init();
 
   ws2812_init();
+  motors_control(0, 0);
 }
 
 
 void loop() {
+  second_mark = millis();
   if(header == 1910){
-    second_mark = millis();
     strcpy(tempChars, commands); // necessário para proteger a informação original
     parseData();
     header = 0;
