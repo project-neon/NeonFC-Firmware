@@ -1,6 +1,8 @@
 #include <HardwareSerial.h>
 #include "MouseSensorADNS9500.hpp"
 
+#define MSK_START (0b10101010)
+
 #define RXD2 16
 #define TXD2 17
 
@@ -8,12 +10,7 @@ int CPI = 1800;
 
 HardwareSerial SerialPort(2);
 
-typedef struct mouse_packet {
-  int16_t dx;
-  int16_t dy;
-} mouse_packet;
-
-mouse_packet packet;
+uint8_t motion[6];
 
 void setup() {
   Serial.begin(115200);
@@ -28,8 +25,12 @@ void loop() {
 
   mouseReadXY(&dx, &dy);
 
-  packet.dx = dx;
-  packet.dy = dy;
+  motion[0] = MSK_START;
+  motion[1] = (dx >> 0);
+  motion[2] = (dx >> 8);
+  motion[3] = (dy >> 0);
+  motion[4] = (dy >> 8);
+  motion[5] = motion[0] ^ motion[1] ^ motion[2] ^ motion[3] ^ motion[4] ;
 
-  SerialPort.write((uint8_t *) &packet, sizeof(packet));
+  SerialPort.write(motion, 6*sizeof(uint8_t));
 }
