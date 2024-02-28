@@ -2,17 +2,6 @@
 #include <esp_wifi.h>
 #include <WiFi.h>
 
-//pin definitions for board V1
-/*
-#define PWMA 19
-#define PWMB 27
-#define A1  5
-#define A2  32
-#define B1  25
-#define B2  26
-#define stby 33
-*/
-
 //pin definitions for Placa V2
 #define PWMA 32
 #define PWMB 13
@@ -32,12 +21,10 @@ float error_sum = 0;
 
 float kps [10] = {2.0317307, 1.2771797, 1.702362};
 
-
 const byte numChars = 64;
 char commands[numChars];
 char tempChars[numChars];
 int header;
-
 
 typedef struct struct_message{
   int header;
@@ -52,7 +39,6 @@ float ks = 0.99;
 float kv = 0.1736;
 float speedMin = 0.05;
 
-
 void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) {
   memcpy(&rcv_commands, incomingData, sizeof(rcv_commands));
   // Update the structures with the new incoming data
@@ -61,7 +47,6 @@ void OnDataRecv(const uint8_t * mac_addr, const uint8_t *incomingData, int len) 
   header = rcv_commands.header;
   // blink_led();
 }
-
 
 void motor_R(float speedR) { // se o valor for positivo gira para um lado e se for negativo troca o sentido
   if (speedR > 0) {
@@ -101,7 +86,6 @@ void motor_L(float speedL) {
   ledcWrite(2, pwm);
 }
 
-
 void motors_control(float linear, float angular) {
   angular = angular + pid(angular, - get_theta_speed());
 
@@ -111,7 +95,6 @@ void motors_control(float linear, float angular) {
   motor_R(Vel_R); //manda para a funcao motor um valor de -255 a 255, o sinal signifca a direcao
   motor_L(Vel_L);
 }
-
 
 void setup() {
   Serial.begin(115200);
@@ -172,7 +155,6 @@ void setup() {
   motors_control(0, 0);
 }
 
-
 void loop() {
   second_mark = millis();
   if(header == 1910){
@@ -191,7 +173,6 @@ void loop() {
 
   motors_control(v_l, v_a); //aplica os valores para os motores
 }
-
 
 void parseData(){
     char * strtokIndx;

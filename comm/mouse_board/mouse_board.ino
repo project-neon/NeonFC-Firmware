@@ -6,7 +6,11 @@
 #define RXD2 16
 #define TXD2 17
 
-int CPI = 1800;
+#define CPI 1800
+
+unsigned long lastNow;
+unsigned long now;
+int16_t dt = 0;
 
 HardwareSerial SerialPort(2);
 
@@ -25,12 +29,20 @@ void loop() {
 
   mouseReadXY(&dx, &dy);
 
-  motion[0] = MSK_START;
-  motion[1] = (dx >> 0);
-  motion[2] = (dx >> 8);
-  motion[3] = (dy >> 0);
-  motion[4] = (dy >> 8);
-  motion[5] = motion[0] ^ motion[1] ^ motion[2] ^ motion[3] ^ motion[4] ;
+  now = micros();
 
-  SerialPort.write(motion, 6*sizeof(uint8_t));
+  if ((float)(now - lastNow) < 250.0) {
+    dt = (int16_t) (now - lastNow);
+  }
+
+  lastNow = now;
+
+  motion[0] = MSK_START;
+  motion[1] = (dy >> 0);
+  motion[2] = (dy >> 8);
+  motion[3] = (dt >> 0);
+  motion[4] = (dt >> 8);
+  motion[5] = (motion[0] ^ motion[1] ^ motion[2] ^ motion[3] ^ motion[4]);
+
+  SerialPort.write(motion, 6);
 }
