@@ -32,9 +32,8 @@ bool newData = false;
 
 float lastValue = 0;
 float v_l, v_a;
-float kp, ki, kd;
-float last_error = 0;
-float error_sum = 0;
+float ang_ks[3];
+float lin_ks[3];
 float speedMin = 0.01;
 
 const byte numChars = 64;
@@ -111,8 +110,9 @@ void motor_L(float speedL) {
 }
 
 
-void motors_control(float linear, float angular, float *error_total, int *iterations){
-  angular = angular + pid(angular, - get_theta_speed(), iterations, error_total);
+void motors_control(float linear, float angular, int *its){
+    angular = angular + pid_ang(angular);
+    linear = linear + pid_lin(linear);
 
     float Vel_R = linear - robotRadius * angular; //ao somar o angular com linear em cada motor conseguimos a ideia de direcao do robo
     float Vel_L = linear + robotRadius * angular;
@@ -120,34 +120,26 @@ void motors_control(float linear, float angular, float *error_total, int *iterat
     motor_R(Vel_R); //manda para a funcao motor um valor de -255 a 255, o sinal signifca a direcao
     motor_L(Vel_L);
 
+    (*its)++;
+
 }
 
 float test_pid(){
-  last_error = 0, error_sum = 0;
-  float error_total = 0;
-  int iterations = 0, t0 = millis();
+    unsigned long t0 = millis();
+    int iterations = 0;
   
-  while(millis() - t0 < 1000){
-    motors_control(-0.2, 0, &error_total, &iterations);
-  }
-  while(millis() - t0 < 2000){
-    motors_control(0.2, 0, &error_total, &iterations);
-  }
-  while(millis() - t0 < 3000){
-    motors_control(0.1, 3.14, &error_total, &iterations);
-  }
-  while(millis() - t0 < 4000){
-    motors_control(-0.1, -3.14, &error_total, &iterations);
-  }
-  while(millis() - t0 < 5500){
-    motors_control(0, 0, &error_total, &iterations);
-  }
+    while(millis() - t0 < 1000) motors_control(-0.2, 0, &iterations);
+    while(millis() - t0 < 2000) motors_control(0.2, 0, &iterations);
+    while(millis() - t0 < 3000) motors_control(0.1, 3.14, &iterations);
+    while(millis() - t0 < 4000) motors_control(-0.1, -3.14, &iterations);
+    while(millis() - t0 < 5500) motors_control(0, 0, &iterations);
 
-  kp = 0;
-  ki = 0;
-  kd = 0;
+    for (int i = 0; i < 3; ++i) {
+        ang_ks[i] = 0;
+        lin_ks[i] = 0;
+    }
   
-  return error_total;
+    return (lin_total+ang_total)/iterations;
 }
 
 
@@ -231,24 +223,36 @@ void parseData(){
         id = atoi(strtokIndx);
         
         if(id == robot_id){         
-          strtokIndx = strtok(NULL, ",");  
-          kp = atof(strtokIndx);
-          kp /= 1000;       
-          strtokIndx = strtok(NULL, ",");         
-          ki = atof(strtokIndx);
-          ki /= 1000; 
-          strtokIndx = strtok(NULL, ","); 
-          kd = atof(strtokIndx);
-          kd /= 1000; 
-          strtokIndx = strtok(NULL, ","); 
+            strtokIndx = strtok(NULL, ",");
+            ang_ks[0] = atof(strtokIndx);
+            ang_ks[0] /= 1000;
+            strtokIndx = strtok(NULL, ",");
+            ang_ks[1] = atof(strtokIndx);
+            ang_ks[1] /= 1000;
+            strtokIndx = strtok(NULL, ",");
+            ang_ks[2] = atof(strtokIndx);
+            ang_ks[2] /= 1000;
+            strtokIndx = strtok(NULL, ",");
+            lin_ks[0] = atof(strtokIndx);
+            lin_ks[0] /= 1000;
+            strtokIndx = strtok(NULL, ",");
+            lin_ks[1] = atof(strtokIndx);
+            lin_ks[1] /= 1000;
+            strtokIndx = strtok(NULL, ",");
+            lin_ks[2] = atof(strtokIndx);
+            lin_ks[2] /= 1000;
+            strtokIndx = strtok(NULL, ",");
        }
 
        else{
-          strtokIndx = strtok(NULL, ",");     
-          strtokIndx = strtok(NULL, ",");         
-          strtokIndx = strtok(NULL, ","); 
-          strtokIndx = strtok(NULL, ","); 
-       }
+            strtokIndx = strtok(NULL, ",");
+            strtokIndx = strtok(NULL, ",");
+            strtokIndx = strtok(NULL, ",");
+            strtokIndx = strtok(NULL, ",");
+            strtokIndx = strtok(NULL, ",");
+            strtokIndx = strtok(NULL, ",");
+            strtokIndx = strtok(NULL, ",");
+        }
    } 
 }
 

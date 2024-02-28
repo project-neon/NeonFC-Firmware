@@ -87,7 +87,8 @@ void motor_L(float speedL) {
 }
 
 void motors_control(float linear, float angular) {
-  angular = angular + pid(angular, - get_theta_speed());
+  angular = angular + pid_ang(angular);
+  linear = linear + pid_lin(linear);
 
   float Vel_R = linear - robotRadius * angular; //ao somar o angular com linear em cada motor conseguimos a ideia de direcao do robo
   float Vel_L = linear + robotRadius * angular;
