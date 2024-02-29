@@ -5,20 +5,19 @@
 #define CPI 1800
 
 
-int16_t motion[2];
+int16_t motion;
 
 void SerialCommCode() {
-  uint8_t received[6];
+  uint8_t received[4];
   while(Serial2.available()) {
     Serial2.readBytes(received, sizeof(received));
 
     if(received[0] == MSK_START){
 
-      uint8_t checksum = received[0] ^ received[1] ^ received[2] ^ received[3] ^ received[4];
+      uint8_t checksum = received[0] ^ received[1] ^ received[2];
 
-      if(checksum == received[5]) {
-        motion[0] = received[1] | (received[2] << 8); 
-        motion[1] = received[3] | (received[4] << 8);
+      if(checksum == received[3]) {
+        motion = received[1] | (received[2] << 8); 
       }
 
     }
@@ -43,12 +42,8 @@ void mouse_init() {
 }
 
 float get_linear_speed() {
-  float dt = (float)(motion[1]) / 1000000.0f;
-
-  Serial.print("dy: "); Serial.println(motion[0]);
-  Serial.print("dt: "); Serial.println(dt, 8);
-
-  float v = CountsToM(motion[0]) / dt;
+  float v = (float) motion;
+  v /= 1000 ;
   Serial.print("vl: "); Serial.println(v);
   return v;
 }

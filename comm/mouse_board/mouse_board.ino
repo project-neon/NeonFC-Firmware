@@ -7,15 +7,13 @@
 
 #define CPI 1800
 
-unsigned long lastNow;
+unsigned long lastSend = 0;
 unsigned long now;
 int16_t dt = 0;
+float dist = 0;
 
-unsigned long lastSend=0;
 
-HardwareSerial SerialPort(2);
-
-uint8_t motion[6];
+uint8_t motion[4];
 
 void setup() {
   Serial.begin(115200);
@@ -25,32 +23,35 @@ void setup() {
 }
 
 void loop() {
-  int16_t dx = 0;
-  int16_t dy = 0;
+  now = millis();
+  if(now - lastSend >= 5){
+    int16_t dx = 0;
+    int16_t dy = 0;
 
-  mouseReadXY(&dx, &dy);
+    
+    mouseReadXY(&dx, &dy);
+    dist += CountsToM(dy);
 
-  now = micros();
+    unsigned long dt = now - lastSend;
 
-  if ((int16_t)(now - lastNow) < 800) {
-    dt = (int16_t) (now - lastNow);
+    lastSend = now;
+
+    Serial.print("d: ");Serial.println(dist);
+    
+    float v_f = (float)(1000000*CountsToM(dy)/dt);
+    Serial.print("v: ");Serial.println(v_f);
+    int16_t v = (int16_t) v_f;
+    
+    motion[0] = MSK_START;
+    motion[1] = (v >> 0);
+    motion[2] = (v >> 8);
+    motion[3] = (motion[0] ^ motion[1] ^ motion[2]);
+
+    
+    Serial2.write(motion, 4);
   }
-
-  lastNow = now;
-
-  motion[0] = MSK_START;
-  motion[1] = (dy >> 0);
-  motion[2] = (dy >> 8);
-  motion[3] = (dt >> 0);
-  motion[4] = (dt >> 8);
-  motion[5] = (motion[0] ^ motion[1] ^ motion[2] ^ motion[3] ^ motion[4]);
-
-  sendData();
 }
 
-void sendData(){
-  if(millis() - lastSend >= 5){
-    lastSend = millis();
-    Serial2.write(motion, 6);
-  }
+float CountsToM(int16_t counts) {
+  return counts/(39.37*CPI);
 }
