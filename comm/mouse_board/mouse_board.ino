@@ -1,4 +1,3 @@
-#include <HardwareSerial.h>
 #include "MouseSensorADNS9500.hpp"
 
 #define MSK_START (0b10101010)
@@ -12,13 +11,15 @@ unsigned long lastNow;
 unsigned long now;
 int16_t dt = 0;
 
+unsigned long lastSend=0;
+
 HardwareSerial SerialPort(2);
 
 uint8_t motion[6];
 
 void setup() {
   Serial.begin(115200);
-  SerialPort.begin(115200, SERIAL_8N1, RXD2, TXD2);
+  Serial2.begin(115200, SERIAL_8N1, RXD2, TXD2);
 
   mouseInit(CPI);
 }
@@ -31,7 +32,7 @@ void loop() {
 
   now = micros();
 
-  if ((float)(now - lastNow) < 250.0) {
+  if ((int16_t)(now - lastNow) < 800) {
     dt = (int16_t) (now - lastNow);
   }
 
@@ -44,5 +45,12 @@ void loop() {
   motion[4] = (dt >> 8);
   motion[5] = (motion[0] ^ motion[1] ^ motion[2] ^ motion[3] ^ motion[4]);
 
-  SerialPort.write(motion, 6);
+  sendData();
+}
+
+void sendData(){
+  if(millis() - lastSend >= 5){
+    lastSend = millis();
+    Serial2.write(motion, 6);
+  }
 }
