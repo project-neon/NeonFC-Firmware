@@ -6,11 +6,11 @@ esp32 = serial.Serial('/dev/ttyUSB0', 115200)
 
 def twiddle(k, dk, ksi=.3, target=None):
     if not target:
-        target = run_pid_test(*k)
+        target = run_pid_test(k)
 
     for i, _ in enumerate(k):
         k[i] += dk[i]
-        new_error = run_pid_test(*k)
+        new_error = run_pid_test(k)
 
         if new_error < target:
             target = new_error
@@ -18,7 +18,7 @@ def twiddle(k, dk, ksi=.3, target=None):
 
         else:
             k[i] -= 2*dk[i]
-            new_error = run_pid_test(*k)
+            new_error = run_pid_test(k)
 
             if new_error < target:
                 target = new_error
@@ -32,7 +32,7 @@ def twiddle(k, dk, ksi=.3, target=None):
     return k, dk, ksi, target
 
 def run_pid_test(ks):
-    if len(k) == 2:
+    if len(ks) == 2:
         print(f"<{3},{ks[0]},{0},{0},{ks[1]},{0},{0}>")
         esp32.write(f"<{3},{1000*ks[0]},{0},{0},{1000*ks[1]},{0},{0}>".encode())
     else:

@@ -4,17 +4,6 @@
 
 #define LED 2
 
-//pin definitions for board V1
-/*
-#define PWMA 19
-#define PWMB 27
-#define A1  5
-#define A2  32
-#define B1  25
-#define B2  26
-#define stby 33
-*/
-
 //pin definitions for board V2
 #define PWMA 32
 #define PWMB 13
@@ -35,6 +24,9 @@ float v_l, v_a;
 float ang_ks[3];
 float lin_ks[3];
 float speedMin = 0.01;
+
+float ang_last = 0, ang_total = 0;
+float lin_last = 0, lin_total = 0;
 
 const byte numChars = 64;
 char commands[numChars];
@@ -110,9 +102,9 @@ void motor_L(float speedL) {
 }
 
 
-void motors_control(float linear, float angular, int *its){
-    angular = angular + pid_ang(angular);
-    linear = linear + pid_lin(linear);
+void motors_control(float linear, float angular, int *its, float *err){
+    angular = angular + pid_ang(angular, err);
+    linear = linear + pid_lin(linear, err);
 
     float Vel_R = linear - robotRadius * angular; //ao somar o angular com linear em cada motor conseguimos a ideia de direcao do robo
     float Vel_L = linear + robotRadius * angular;
@@ -125,21 +117,27 @@ void motors_control(float linear, float angular, int *its){
 }
 
 float test_pid(){
+    Serial.println("Testing PID: "); 
+    Serial.print("ang kp: ");Serial.println(ang_ks[0]);
+    Serial.print("lin kp: ");Serial.println(lin_ks[0]);
+    ang_last = 0, ang_total = 0;
+    lin_last = 0, lin_total = 0;
     unsigned long t0 = millis();
     int iterations = 0;
+    float total_error = 0;
   
-    while(millis() - t0 < 1000) motors_control(-0.2, 0, &iterations);
-    while(millis() - t0 < 2000) motors_control(0.2, 0, &iterations);
-    while(millis() - t0 < 3000) motors_control(0.1, 3.14, &iterations);
-    while(millis() - t0 < 4000) motors_control(-0.1, -3.14, &iterations);
-    while(millis() - t0 < 5500) motors_control(0, 0, &iterations);
+    while(millis() - t0 < 1000) motors_control(-0.2, 0, &iterations, &total_error);
+    while(millis() - t0 < 2000) motors_control(0.2, 0, &iterations, &total_error);
+    while(millis() - t0 < 3000) motors_control(0.1, 3.14, &iterations, &total_error);
+    while(millis() - t0 < 4000) motors_control(-0.1, -3.14, &iterations, &total_error);
+    while(millis() - t0 < 5500) motors_control(0, 0, &iterations, &total_error);
 
     for (int i = 0; i < 3; ++i) {
         ang_ks[i] = 0;
         lin_ks[i] = 0;
     }
   
-    return (lin_total+ang_total)/iterations;
+    return total_error/iterations;
 }
 
 
@@ -148,6 +146,7 @@ esp_now_peer_info_t peerInfo;
 void setup() {
   pinMode(LED, OUTPUT);
   Serial.begin(115200);
+  mouse_init();
 
   // configuração de pinos
 
