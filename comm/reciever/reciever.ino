@@ -22,7 +22,7 @@
 #define B2  27
 
 // This is de code for the board that is in robots
-int robot_id = 2;
+int robot_id = 7;
 int id;
 int first_mark = 0, second_mark;
 
@@ -118,9 +118,9 @@ void setup() {
 
   // define kps values for diferent robot ids
 
-  kps[5] = 1.1780;
+  kps[5] = 1.15;
   kps[7] = 1.0792;
-  kps[8] = 0.9700;
+  kps[8] = 3.15;
   
 
   // configuração de pinos
