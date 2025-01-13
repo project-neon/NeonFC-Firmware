@@ -1,4 +1,4 @@
-#include <ESPmDNS.h>
+// #include <ESPmDNS.h>
 #include <esp_now.h>
 #include <esp_wifi.h>
 #include <WiFi.h>
@@ -11,31 +11,25 @@ char tempChars[numChars];
 boolean newData = false;     
 int id, count;
 
-typedef struct struct_message{
-  float value;
-} struct_message;
-
-struct_message commands;
-
 //==============
 
 esp_now_peer_info_t peerInfo;
 
 //pin definitions
-#define PWMA 32
-#define PWMB 13
-#define A1  25
-#define A2  33
-#define B1  26
-#define B2  27
-//#define S1  16
+#define nSLEEP 40
+#define nFAULT 41
 
-#define d1  35
-#define d2  34
-#define d3  39
-#define d4  36
+#define A1  37
+#define A2  36
+#define B1  39
+#define B2  38
 
-const int dip[4] = {35,34,39,36};
+#define d1  21
+#define d2  47
+#define d3  48
+#define d4  45
+
+const int dip[4] = {21, 47, 48, 45};
 
 #define LOG Serial.print
 #define ENDL Serial.println()
@@ -88,7 +82,7 @@ void motor_L(int speedL) {
 }
 
 void motors_control(float linear, float angular) {
-  angular = pid(angular, - get_theta_speed());
+  //angular = pid(angular, - get_theta_speed());
 
   if (linear > 0 ) linear = map(linear, 0, 255, 60, 255);
   if (linear < 0 ) linear = map(linear, 0, -255, -60, -255);
@@ -121,19 +115,12 @@ void setup() {
   Serial.begin(115200);
 
   // configuração de pinos
-
-  ledcAttachPin(PWMA, 1);
-  ledcAttachPin(PWMB, 2);
-
-  ledcSetup(1, 80000, 8);
-  ledcSetup(2, 80000, 8);
-
   pinMode(A1, OUTPUT);
   pinMode(A2, OUTPUT);
   pinMode(B1, OUTPUT);
   pinMode(B2, OUTPUT);
-
-//  pinMode(S1, OUTPUT);
+  pinMode(nSLEEP, OUTPUT);
+  pinMode(nFAULT, INPUT);
  
   pinMode(d1, INPUT);
   pinMode(d2, INPUT);
@@ -171,7 +158,7 @@ void setup() {
 
   // configuração mpu
   
-  mpu_init();
+  // mpu_init();
   ina219_init();
   ws2812_init();
   test_current();
@@ -180,41 +167,41 @@ void setup() {
 void loop() {
 
   LOG("Test Start:"); ENDL;
-  LOG(get_theta_speed()); ENDL;
+  //LOG(get_theta_speed()); ENDL;
   
-  LOG("motors test:"); ENDL;
+  //LOG("motors test:"); ENDL;
   
-  commands.value = get_voltage();
+  LOG("voltage: "); LOG(get_voltage()); ENDL;
 
 //  tone(S1, 1000);
 //  delay(1000);
 //  noTone(S1);
   
-  for (int i = 0; i < 1; ++i)
-  { 
-    LOG("motor A forward"); ENDL;
-    motor_R(150);
-    delay(1000);
-    // LOG("current A -----"); LOG(get_current()); ENDL;
-    // LOG("voltage -------"); LOG(get_voltage()); ENDL;
-    LOG("motor A backward"); ENDL;
-    motor_R(-150);
-    delay(1000);
-    motor_R(0);
-    LOG("motor B forward"); ENDL;
-    motor_L(150);
-    delay(1000);
-    // LOG("current B -----"); LOG(get_current()); ENDL;
-    // LOG("voltage -------"); LOG(get_voltage()); ENDL;
-    LOG("motor B backward"); ENDL;
-    motor_L(-150);
-    delay(1000);
-    motor_L(0);
-  }
+  //for (int i = 0; i < 1; ++i)
+  //{ 
+  //  LOG("motor A forward"); ENDL;
+  //  motor_R(150);
+  //  delay(1000);
+  //  // LOG("current A -----"); LOG(get_current()); ENDL;
+  //  // LOG("voltage -------"); LOG(get_voltage()); ENDL;
+  //  LOG("motor A backward"); ENDL;
+  //  motor_R(-150);
+  //  delay(1000);
+  //  motor_R(0);
+  //  LOG("motor B forward"); ENDL;
+  //  motor_L(150);
+  //  delay(1000);
+  //  // LOG("current B -----"); LOG(get_current()); ENDL;
+  //  // LOG("voltage -------"); LOG(get_voltage()); ENDL;
+  //  LOG("motor B backward"); ENDL;
+  //  motor_L(-150);
+  //  delay(1000);
+  //  motor_L(0);
+  //}
 
-//  dip_state();
+  dip_state();
 
-//  ws2812_test();
+  ws2812_test();
 
 //  sendData();
 }
@@ -229,6 +216,7 @@ void dip_state(){
     state = digitalRead(dip[i]);
     LOG(state); LOG(",");
   }
+  ENDL;
  
 }
 
