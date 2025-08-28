@@ -7,7 +7,7 @@ esp32 = serial.Serial('/dev/ttyUSB0', 115200)
 def twiddle(k, dk, ksi=.3, target=None):
     if not target:
         target = run_pid_test(*k)
-
+    
     for i, _ in enumerate(k):
         k[i] += dk[i]
         new_error = run_pid_test(*k)
@@ -32,13 +32,14 @@ def twiddle(k, dk, ksi=.3, target=None):
     return k, dk, ksi, target
 
 def run_pid_test(kp, ki=0, kd=0):
+    print(f"run_pid_test: kp={kp} ki={ki} kd={kd}")
     print(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>")
     esp32.write(f"<{0},{0},{0},{0},{3},{1000*kp},{1000*ki},{1000*kd},{9},{0},{0},{0}>".encode())
     sleep(7)
-    error = esp32.readline()
+    error = esp32.readline() # Se der algum problema de comunicação acho que isso aqui fica parado pra sempre
     error = error.decode()
-    print(error)
-    return abs(float(error))
+    print("error = ",error)
+    return abs(float(error)) # TODO pq é abs?
 
 params = [[0], [0.5]]
 while True:
