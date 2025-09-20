@@ -109,8 +109,9 @@ void recvWithStartEndMarkers(){
 void sendData(){   
     // esse delay é necessário para que os dados sejam enviados corretamente
     esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
-    // digitalWrite(LED, HIGH);
-    delay(3);
-    // digitalWrite(LED, LOW);
+    digitalWrite(LED, HIGH);
+    delay(30); // TODO olha isso
+    digitalWrite(LED, LOW);
+    delay(30);
     
 }
