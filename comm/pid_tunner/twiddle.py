@@ -2,12 +2,12 @@ import serial
 from time import sleep
 from random import randint
 
-serial_port = input("insert ESP32 location (default = \"/dev/ttyACM0\")")
+serial_port = input("insert ESP32 location (default = \"/dev/ttyACM0\"):\n")
 
 if serial_port == "":
     serial_port = '/dev/ttyACM0'
 
-print("serial port: ",serial_port)
+print("\nusing serial port: ",serial_port)
 
 esp32 = serial.Serial(serial_port, 115200)
 
@@ -39,7 +39,7 @@ def twiddle(k, dk, ksi=.3, target=None):
     return k, dk, ksi, target
 
 def run_pid_test(kp, ki=0, kd=0):
-    encoded = esp32.write(f"<{0},{0},{0},{0},{3},{1000*kp},{1000*ki},{1000*kd},{9},{0},{0},{0}>".encode())
+    encoded = (f"<{0},{0},{0},{0},{3},{1000*kp},{1000*ki},{1000*kd},{9},{0},{0},{0}>".encode())
     print("sending: ", encoded)
     esp32.write(encoded)
     sleep(7)
