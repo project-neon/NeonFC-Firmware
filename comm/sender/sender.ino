@@ -39,10 +39,23 @@ void setup() {
   ESP_ERROR_CHECK(esp_wifi_set_channel(14, WIFI_SECOND_CHAN_NONE));
   esp_wifi_set_max_tx_power(84);
 
+  //  for(int i = 0; i < 10; i++){
+  //   digitalWrite(LED, HIGH);
+  //   delay(1000);
+  //   digitalWrite(LED, LOW);
+  //   delay(1000);
+  //  }
+    
 
   if (esp_now_init() != ESP_OK) 
   {
     Serial.println("Error initializing ESP-NOW");
+    // while(true){
+    //   digitalWrite(LED, HIGH);
+    //   delay(3000);
+    //   digitalWrite(LED, LOW);
+    //   delay(3000);
+    // }
     return;
   }
 
@@ -66,6 +79,17 @@ void loop() {
       commands.header = 1910;
       sendData();
       newData = false;
+
+
+    digitalWrite(LED, LOW);
+    delay(1250);
+    digitalWrite(LED, HIGH);
+    delay(1250);
+  } else {
+    digitalWrite(LED, LOW);
+    delay(2500);
+    digitalWrite(LED, HIGH);
+    delay(2500);
   }
 }
 
@@ -79,11 +103,16 @@ void recvWithStartEndMarkers(){
     char in;
 
     while (Serial.available()){
+      Serial.print("oi");
+      digitalWrite(LED, HIGH);
+      delay(100); 
+      digitalWrite(LED, LOW);
+      delay(100);
         //  Formato da mensagem::
         //  <[id1],[v_l1],[v_a1],[id2],[v_l2],[v_a2],[id3],[v_l3],[v_a3]>
         in = Serial.read();
 
-        if (recvInProgress == true){
+        if (recvInProgress == true){ \\TODO: Ele sai do reciever? Startmarker e endmarker aparecem??
             if (in != endMarker){
                 receivedChars[ndx] = in;
                 ndx++;
@@ -107,10 +136,11 @@ void recvWithStartEndMarkers(){
 
 
 void sendData(){   
-    // esse delay é necessário para que os dados sejam enviados corretamente
+    // esse delay é necessário para que os dados sejam --enviados corretamente
     esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
-    // digitalWrite(LED, HIGH);
-    delay(3);
-    // digitalWrite(LED, LOW);
+    digitalWrite(LED, HIGH);
+    delay(300); 
+    digitalWrite(LED, LOW);
+    delay(300);
     
 }
