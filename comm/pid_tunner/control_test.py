@@ -2,14 +2,7 @@ import serial
 from time import sleep
 from random import randint
 
-serial_port = input("insert ESP32 location (default = \"/dev/ttyACM0\"):\n")
-
-if serial_port == "":
-    serial_port = '/dev/ttyACM0'
-
-print("\nusing serial port: ",serial_port)
-
-esp32 = serial.Serial(serial_port, 115200)
+esp32 = serial.Serial('/dev/ttyUSB0', 115200)
 
 def twiddle(k, dk, ksi=.3, target=None):
     if not target:
@@ -40,30 +33,21 @@ def twiddle(k, dk, ksi=.3, target=None):
 
 def run_pid_test(kp, ki=0, kd=0):
     print(f"run_pid_test: kp={kp} ki={ki} kd={kd}")
-    print(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>")
-    print("sending encoded message: ", encoded)
+    # print(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>")
     esp32.write(f"<{0},{0},{0},{0},{3},{1000*kp},{1000*ki},{1000*kd},{9},{0},{0},{0}>".encode())
     sleep(7)
-    error = esp32.readline() # Se der algum problema de comunicação acho que isso aqui fica parado pra sempre
+    error = esp32.readline()
     error = error.decode()
-    print("error rec = ",error)
-    return abs(float(error))
+    print("error = ",error)
+    return abs(float(error)) # TODO pq é abs?
 
 params = [[0], [0.5]]
 while True:
-    command = input("(1) run one\n"
-                    "(2) run n\n"
-                    "(3) close\n").strip()
-
-    if command == "3":
-        break
-
-    n = 1
-    if command == "2":
-        n = int(input("\tn: ").strip())
+    command = input("insira um kp, um ki e um kd").strip()
+    n = int(input("\tn: ").strip())    
 
     for _ in range(n):
-        params = twiddle(*params)
+        params = twiddle(*params) # TODO
         print("-------------------------------------------------------------------------------",
               "best (kp, ki, kd):", params[0],
               "\nbest error:", params[3],
