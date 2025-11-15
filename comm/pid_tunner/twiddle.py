@@ -39,10 +39,11 @@ def twiddle(k, dk, ksi=.3, target=None):
     return k, dk, ksi, target
 
 def run_pid_test(kp, ki=0, kd=0):
-    print(f"run_pid_test: kp={kp} ki={ki} kd={kd}")
-    print(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>")
+    #print(f"run_pid_test: kp={kp} ki={ki} kd={kd}")
+    #print(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>")
+    encoded = f"<{0},{0},{0},{0},{3},{1000*kp},{1000*ki},{1000*kd},{9},{0},{0},{0}>".encode()
     print("sending encoded message: ", encoded)
-    esp32.write(f"<{0},{0},{0},{0},{3},{1000*kp},{1000*ki},{1000*kd},{9},{0},{0},{0}>".encode())
+    esp32.write(encoded)
     sleep(7)
     error = esp32.readline() # Se der algum problema de comunicação acho que isso aqui fica parado pra sempre
     error = error.decode()
