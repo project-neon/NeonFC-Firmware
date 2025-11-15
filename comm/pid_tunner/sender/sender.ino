@@ -147,5 +147,7 @@ void sendData() {
   //delay(750000000000);  // agora ele chega???
   delay(250);
   digitalWrite(LED, LOW);
+  delay(250);
+
 
 }
