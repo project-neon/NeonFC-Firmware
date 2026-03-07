@@ -2,7 +2,7 @@ import serial
 from time import sleep
 from random import randint
 
-esp32 = serial.Serial('/dev/ttyUSB0', 115200)
+esp32 = serial.Serial('/dev/ttyACM0', 115200)
 
 def twiddle(k, dk, ksi=.3, target=None):
     if not target:
@@ -35,10 +35,18 @@ def run_pid_test(kp, ki=0, kd=0):
     print(f"<{0},{0},{0},{0},{3},{kp},{ki},{kd},{9},{0},{0},{0}>")
     esp32.write(f"<{0},{0},{0},{0},{3},{1000*kp},{1000*ki},{1000*kd},{9},{0},{0},{0}>".encode())
     sleep(7)
+    
     error = esp32.readline()
     error = error.decode()
-    print(error)
-    return abs(float(error))
+    print('error =',error)
+    
+    #while True:
+    try:
+        return abs(float(error))
+    except ValueError:
+        print('non number value',error)
+        return 1
+
 
 params = [[0], [0.5]]
 while True:
