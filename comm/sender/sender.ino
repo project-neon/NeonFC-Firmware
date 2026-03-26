@@ -4,6 +4,8 @@
 
 #define LED 2
 
+// sender de jogo da ESP32
+
 // MAC Adress genérico para enviar os dados no canal selecionado
 uint8_t broadcast_adr[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
