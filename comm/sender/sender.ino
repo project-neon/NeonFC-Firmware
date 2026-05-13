@@ -139,8 +139,8 @@ void sendData(){
     // esse delay é necessário para que os dados sejam --enviados corretamente
     esp_err_t message = esp_now_send(broadcast_adr, (uint8_t *) &commands, sizeof(commands));
     digitalWrite(LED, HIGH);
-    delay(300); 
+    delay(10); 
     digitalWrite(LED, LOW);
-    delay(300);
+    delay(10);
     
 }
